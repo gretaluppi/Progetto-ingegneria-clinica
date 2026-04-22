@@ -10,9 +10,8 @@ def token(nome):
             token_finale=row["Token"]
             st.success("Login effettuato")
             return token_finale,True
-        else: 
-            token_finale="Nessun token valido trovato, riprovare"
-            return token_finale,False
+    token_finale="Nessun token valido trovato, riprovare"
+    return token_finale,False
         
 def login(): 
     st.title("Login")
