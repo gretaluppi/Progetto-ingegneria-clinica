@@ -1,9 +1,16 @@
 import synapseclient
-syn = synapseclient.Synapse()
-syn.login(authToken="eyJ0eXAiOiJKV1QiLCJraWQiOiJXN05OOldMSlQ6SjVSSzpMN1RMOlQ3TDc6M1ZYNjpKRU9VOjY0NFI6VTNJWDo1S1oyOjdaQ0s6RlBUSCIsImFsZyI6IlJTMjU2In0.eyJhY2Nlc3MiOnsic2NvcGUiOlsidmlldyJdLCJvaWRjX2NsYWltcyI6e319LCJ0b2tlbl90eXBlIjoiUEVSU09OQUxfQUNDRVNTX1RPS0VOIiwiaXNzIjoiaHR0cHM6Ly9yZXBvLXByb2QucHJvZC5zYWdlYmFzZS5vcmcvYXV0aC92MSIsImF1ZCI6IjAiLCJuYmYiOjE3NzY2ODU3ODksImlhdCI6MTc3NjY4NTc4OSwianRpIjoiMzU5MzgiLCJzdWIiOiIzNTg0OTYxIn0.evAV9MC8i0vH8Q_XPETZtJDiIaYnd2FAsiGeLBt5a1cQrKNJyyzfQ7pH3rqW52IiGkJMo3tO-yUicAjOm78AabqvlFDhq66ZbqRfsD-SRi8MlNGwIEzpYWawukrFilpJp7Sm5DLmkI0J_VTwGX8n9sTYEMqqT7FvCDD4_W9qI8k7jUOmTxB-7Oh2l0bvD-lhwWNjZj3aIlJfLLWNfn0SfupruoUn_YuyIcDVZpuW_4xXZKCxxx-0GkBp0I01WQQS5I9tjUX1xaf-e8fw1VhrB5oGRlL5WbIA9_G9MDpNk6ex3b89Ay4HJ73bvu8PzKFvDm9sxTsVP7o3iH1Mys5-LA")
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+def token(nome):
+    name=st.text_input("Inserire il nome", placeholder="es: Francesca")
+    file_token=pd.read_csv("TOKEN.csv")
+    for i,row in file_token.iterrows():
+        if row["Name"]==nome.lower():
+            token_finale=row["Token"]
+    return token_finale
+syn = synapseclient.Synapse()
+syn.login(authToken=token(name))
 folder_file="syn61370558" #ho assegnato ad una variabile l'ID della cartella 
 df = pd.read_csv("CONTROLS.csv", sep="," , header=1) # questo mi serve per aprire il file cvs 
 # e per mettere come prima riga la riga che in automatico va come seconda (non so perchè ma quando 
