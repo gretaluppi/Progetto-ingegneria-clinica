@@ -22,7 +22,7 @@ def login():
             syn = synapseclient.Synapse()
             syn.login(authToken=tf)
             st.session_state.logged_in = True
-            st.session_state.token_auth=tf
+            st.session_state.auth_token=tf
             st.success("Login effettuato")
             st.rerun()
         else: 
