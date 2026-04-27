@@ -16,6 +16,22 @@ if token(name)==None: #pd.isna(variabile) mi restituisce true se la cella è vuo
 else:
      st.session_state.logged=True
 
+syn = synapseclient.Synapse()
 syn.login(authToken=token(name))
 folder_file="syn61370558" #ho assegnato ad una variabile l'ID della cartella 
+df = pd.read_csv("CONTROLS.csv", sep="," , header=1)
 
+st.sidebar.header("Analisi per genere")
+selezione=st.sidebar.selectbox("Scegliere un'opzione", ["Uomo","Donna"])
+soggetti_selezionati = []
+if selezione == "Uomo": 
+    for i,row in df.iterrows(): 
+        if row["Gender"]== "Male":
+            soggetti_selezionati.append ({"subject ID":row["Subject ID"], "gender":row["Gender"]})
+if selezione == "Donna":
+    for i,row in df.iterrows():
+       if row["Gender"]== "Female":
+          soggetti_selezionati.append ({"subject ID":row["Subject ID"], "gender":row["Gender"]})
+
+data_frame_filtrato = pd.DataFrame(soggetti_selezionati)
+st.dataframe(data_frame_filtrato)
