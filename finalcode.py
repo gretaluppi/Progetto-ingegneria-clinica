@@ -66,7 +66,7 @@ if st.sidebar.button("Parametri di ricerca"):
     st.session_state.show_filters = True
 
 if st.session_state.show_filters:
-    scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova"])
+    scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova","Tempo di appoggio"])
     soggetti_selezionati_genere=[]
     soggetti_selezionati_eta=[]
     soggetti_selezionati_UPDRS=[]
@@ -150,10 +150,54 @@ if st.session_state.show_filters:
                     if UPDRS >=0:
                         soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": row["Age (years)"],"MDS-UPDRS": UPDRS})
         
-
     data_frame_filtrato = pd.DataFrame(soggetti_selezionati_UPDRS)
     st.subheader("Dati filtrati")
     st.dataframe(data_frame_filtrato)
+    
+    if "Tempo di appoggio" in scelta_parametri:
+        syn = synapseclient.Synapse()
+        syn.login(authToken=st.session_state.auth_token)
+        folder_file="syn61370558"
+        tutti_file=list(syn.getChildren(folder_file))
+        file_selezionati=[]
+
+        for element in tutti_file: 
+            if ("HurriedPace" in element['name'])and("_mat" not in element['name']):
+                file_selezionati.append(element)
+        if file_selezionati: 
+            codice_paziente=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
+            for j in file_selezionati:
+                if codice_paziente in j:
+                    open_file=pd.DataFrame(j)
+                    appoggio_sx,appoggio_dx=momenti_contatto(open_file,)
+                    
+def momenti_contatto(file): #serve per creare un sottofile con solo la riga e colonne di interesse (cioè colonna del tempo e righe in cui il valore cambia da 0 a 1 o da 1 a 0)
+    appoggio_o_salita_sx=[]
+    appoggio_o_salita_dx=[]
+    secondi_sx=0
+    secondi_dx=0
+    for i,row in file.iterrows():
+        diff = file["L Foot Contact"].diff() #.diff() è una funzione che sottrae il valore della riga precedente da quello della riga attuale permettendo di trovare i fronti di salita e discesa in un segnale binario
+        if diff==1:
+            appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":1})
+        else:
+            appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":0}) 
+        secondi_sx+=0.01
+    for i,row in file.iterrows():
+        diff
+        diff = file["R Foot Contact"].diff()
+        if diff==1:
+            appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":1})
+        else:
+            appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":0}) 
+        secondi_dx+=0.01
+    return appoggio_o_salita_sx,appoggio_o_salita_dx
+
+
+
+
+
+
     # if "Prova" in scelta_parametri:
     # ____________________
     # FILTRO PROVA - Adry
