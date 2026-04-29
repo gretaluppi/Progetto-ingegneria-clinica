@@ -79,7 +79,10 @@ if not st.session_state.show_filters:
     paziente=[child['name'] for child in files]
     codice_persona=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
     if codice_persona:
-        file_scelti= [f for f in paziente if codice_persona in f]
+        file_scelti = [] # 1. Crei una lista vuota
+        for f in paziente: # 2. Cicli su ogni nome file
+            if codice_persona in f: # 3. Controlli se il codice è presente
+                file_scelti.append(f) # 4. Se sì, lo aggiungi alla lista
         if file_scelti:
             file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
         if file_da_aprire:
@@ -98,7 +101,7 @@ if not st.session_state.show_filters:
             st.warning(f"Nessun file trovato per il paziente '{codice_persona}'")
 
 if st.session_state.show_filters:
-    scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova","Tempo di appoggio"])
+    scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova"])
     soggetti_selezionati_genere=[]
     soggetti_selezionati_eta=[]
     soggetti_selezionati_UPDRS=[]
