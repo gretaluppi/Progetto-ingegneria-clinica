@@ -20,7 +20,7 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
         return somma_finale
 
 st.title("Variabili cliniche")
-st.write("In questa pagina troviamo i dati demografici.")
+st.write("In questa pagina troviamo le Variabili Cliniche.")
 tab1, tab2=st.tabs(["UPDRS","terapia paziente"])
 with tab1:
     df_pd = pd.read_csv("PD.csv", sep="," , header=1)
