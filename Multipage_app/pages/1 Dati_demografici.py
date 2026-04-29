@@ -186,16 +186,16 @@ with col4:
 st.divider()
 
 # TABELLA NASCOSTA
-cols_to_show = ["Subject ID", "Age", "Gender", "Race", "Height (in)", "Weight (kg)"]
+#cols_to_show = ["Subject ID", "Age", "Gender", "Race", "Height (in)", "Weight (kg)"]
 
-if scelta_gruppo == "PD Patients":
-    cols_to_show.append("Years since PD diagnosis")
+# if scelta_gruppo == "PD Patients":
+#     cols_to_show.append("Years since PD diagnosis")
 
-if scelta_gruppo == "All":
-    cols_to_show.append("Group")
+# if scelta_gruppo == "All":
+#     cols_to_show.append("Group")
 
-with st.expander("📄 Visualizza dati filtrati"):
-    st.dataframe(
-        df[cols_to_show].reset_index(drop=True),
-        use_container_width=True
-    )
+# with st.expander("📄 Visualizza dati filtrati"):
+#     st.dataframe(
+#         df[cols_to_show].reset_index(drop=True),
+#         use_container_width=True
+#     )
