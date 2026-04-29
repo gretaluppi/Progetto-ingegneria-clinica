@@ -154,80 +154,81 @@ if st.session_state.show_filters:
     st.subheader("Dati filtrati")
     st.dataframe(data_frame_filtrato)
     
-    if "Tempo di appoggio" in scelta_parametri:
+#     if "Tempo di appoggio" in scelta_parametri:
+#         syn = synapseclient.Synapse()
+#         syn.login(authToken=st.session_state.auth_token)
+#         folder_file="syn61370558"
+#         tutti_file=list(syn.getChildren(folder_file))
+#         file_selezionati=[]
+
+#         for element in tutti_file: 
+#             if ("HurriedPace" in element['name'])and("_mat" not in element['name']):
+#                 file_selezionati.append(element)
+#         if file_selezionati: 
+#             codice_paziente=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
+#             for j in file_selezionati:
+#                 if codice_paziente in j:
+#                     open_file=pd.DataFrame(j)
+#                     appoggio_sx,appoggio_dx=momenti_contatto(open_file,)
+
+                    
+# def momenti_contatto(file): #serve per creare un sottofile con solo la riga e colonne di interesse (cioè colonna del tempo e righe in cui il valore cambia da 0 a 1 o da 1 a 0)
+#     appoggio_o_salita_sx=[]
+#     appoggio_o_salita_dx=[]
+#     secondi_sx=0
+#     secondi_dx=0
+#     for i,row in file.iterrows():
+#         diff_sx = file["L Foot Contact"].diff() #.diff() è una funzione che sottrae il valore della riga precedente da quello della riga attuale permettendo di trovare i fronti di salita e discesa in un segnale binario
+#         if diff_sx==1:
+#             appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":1})
+#         else:
+#             appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":0}) 
+#         secondi_sx+=0.01
+#     for i,row in file.iterrows():
+#         diff_dx= file["R Foot Contact"].diff()
+#         if diff_dx==1:
+#             appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":1})
+#         else:
+#             appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":0}) 
+#         secondi_dx+=0.01
+#     return appoggio_o_salita_sx,appoggio_o_salita_dx
+
+
+
+
+
+
+    if "Prova" in scelta_parametri:
+    ____________________
+    FILTRO PROVA - Adry
+    ____________________
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
         folder_file="syn61370558"
-        tutti_file=list(syn.getChildren(folder_file))
-        file_selezionati=[]
-
-        for element in tutti_file: 
-            if ("HurriedPace" in element['name'])and("_mat" not in element['name']):
-                file_selezionati.append(element)
-        if file_selezionati: 
-            codice_paziente=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
-            for j in file_selezionati:
-                if codice_paziente in j:
-                    open_file=pd.DataFrame(j)
-                    appoggio_sx,appoggio_dx=momenti_contatto(open_file,)
-                    
-def momenti_contatto(file): #serve per creare un sottofile con solo la riga e colonne di interesse (cioè colonna del tempo e righe in cui il valore cambia da 0 a 1 o da 1 a 0)
-    appoggio_o_salita_sx=[]
-    appoggio_o_salita_dx=[]
-    secondi_sx=0
-    secondi_dx=0
-    for i,row in file.iterrows():
-        diff_sx = file["L Foot Contact"].diff() #.diff() è una funzione che sottrae il valore della riga precedente da quello della riga attuale permettendo di trovare i fronti di salita e discesa in un segnale binario
-        if diff_sx==1:
-            appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":1})
+        files=list(syn.getChildren(folder_file))
+        prova=[child['name'] for child in files]
+        st.sidebar.header("seleziona tipo di prova")
+        selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
+        file_scelti= [f for f in prova if selezione_prova in f and (("_mat" in selezione_prova) == ("_mat" in f)) and (("TURN" in selezione_prova) == ("TURN" in f))]
+        if file_scelti:
+            file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
+            if file_da_aprire:
+                match = [c['id'] for c in files if c['name'] == file_da_aprire]
+                if match:
+                    file_id =match[0] 
+                    with st.spinner("Caricamento del file..."):
+                        entità = syn.get(file_id)
+                        df_prova = pd.read_csv(entità.path, sep="," , header=1)
+                        st.success(f"File {file_da_aprire} caricato con successo!")
+                        st.title(f"analisi: {file_da_aprire}")
+                        st.dataframe(df_prova)
+                else:
+                    st.error("Nessun file trovato per la prova selezionata")
+            else:
+                st.warning(f"Nessun file trovato per la prova '{selezione_prova}' (esclusi mat e TURN)")
         else:
-            appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":0}) 
-        secondi_sx+=0.01
-    for i,row in file.iterrows():
-        diff_dx= file["R Foot Contact"].diff()
-        if diff_dx==1:
-            appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":1})
-        else:
-            appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":0}) 
-        secondi_dx+=0.01
-    return appoggio_o_salita_sx,appoggio_o_salita_dx
-
-
-
-
-
-
-    # if "Prova" in scelta_parametri:
-    # ____________________
-    # FILTRO PROVA - Adry
-    # ____________________
-    #     syn = synapseclient.Synapse()
-    #     syn.login(authToken=st.session_state.auth_token)
-    #     folder_file="syn61370558"
-    #     files=data_frame_filtrato["Subject ID"].tolist()
-    #     prova=[child['name'] for child in files]
-    #     st.sidebar.header("seleziona tipo di prova")
-    #     selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
-    #     file_scelti= [f for f in prova if selezione_prova in f and (("_mat" in selezione_prova) == ("_mat" in f)) and (("TURN" in selezione_prova) == ("TURN" in f))]
-    #     if file_scelti:
-    #         file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
-    #         if file_da_aprire:
-    #             match = [c['id'] for c in files if c['name'] == file_da_aprire]
-    #             if match:
-    #                 file_id =match[0] 
-    #                 with st.spinner("Caricamento del file..."):
-    #                     entità = syn.get(file_id)
-    #                     df_prova = pd.read_csv(entità.path, sep="," , header=1)
-    #                     st.success(f"File {file_da_aprire} caricato con successo!")
-    #                     st.title(f"analisi: {file_da_aprire}")
-    #                     st.dataframe(df_prova)
-    #             else:
-    #                 st.error("Nessun file trovato per la prova selezionata")
-    #         else:
-    #             st.warning(f"Nessun file trovato per la prova '{selezione_prova}' (esclusi mat e TURN)")
-    #     else:
-    #         st.info("Nessun file disponibile")
-    # else
+            st.info("Nessun file disponibile")
+    else
         
     
     # back=st.sidebar.button("Torna alla ricerca per paziente")
