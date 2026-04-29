@@ -87,7 +87,7 @@ if st.session_state.show_filters:
                 if row["Gender"]== "Female":
                     soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
     else: 
-        for i,row in df_control.iterrows(): 
+        for i,row in df_pd.iterrows(): 
             soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
 
     if "Età" in scelta_parametri: 
@@ -97,10 +97,10 @@ if st.session_state.show_filters:
         st.sidebar.header("analisi per età")
         selezione_eta=st.sidebar.selectbox("scegliere un'opzione", ["range di età","età precisa"])
         if selezione_eta == "range di età": 
-            age=st.sidebar.slider("selezionare un range di eta", 0, 110, 50) 
+            age_min,age_max=st.sidebar.slider("selezionare un range di eta", 0, 110, (0,100)) 
             for i,row in df_pd.iterrows():
                 for element in soggetti_selezionati_genere:
-                    if ((row["Age (years)"]<=age) and (element["Subject ID"] == row["Subject ID"])):
+                    if ((row["Age (years)"]<=age_max and row["Age (years)"]>=age_min) and (element["Subject ID"] == row["Subject ID"])):
                         soggetti_selezionati_eta.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": row["Age (years)"]})
         if selezione_eta == "età precisa":
             age=st.sidebar.number_input("selezionare un età", 0, 110, 50, 1)
@@ -195,25 +195,23 @@ if st.session_state.show_filters:
 
 
     if "Prova" in scelta_parametri:
-     # FILTRO PROVA - Adry___________________
+    # FILTRO PROVA - Adry___________________
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
         folder_file="syn61370558"
-        soggetti_ids= data_frame_filtrato["Subject ID"].unique().tolist()
         all_files_in_folder = list(syn.getChildren(folder_file))
         files_disponibili = []
         for child in all_files_in_folder:
             nome_file= str(child['name']).upper()
-            for sub_id in soggetti_ids: 
-                if str(sub_id).strip().upper() in nome_file:
+            for element in soggetti_selezionati_UPDRS:
+                if element["Subject ID"] in child['name']:
                     files_disponibili.append(child)
-                    break
         st.sidebar.header("seleziona tipo di prova")
         selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
         nomi_disponibili = [f['name'] for f in files_disponibili]
         file_scelti = []
         for nome in nomi_disponibili:
-            if selezione_prova in nome and (("_mat" in selezione_prova) == ("_mat" in nome)) and (("TURN" in selezione_prova) == ("TURN" in nome)):
+            if selezione_prova in nome and (("_mat" in selezione_prova)==("_mat" in nome)) and (("TURN" in selezione_prova)==("TURN" in nome)):
                 file_scelti.append(nome)
         if file_scelti:
             file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
