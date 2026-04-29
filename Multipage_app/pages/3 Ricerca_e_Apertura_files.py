@@ -57,7 +57,7 @@ df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
 df_pd = pd.read_csv("PD.csv", sep="," , header=1)
 
 # IMPOSTAZIONE PAGINA
-st.title("ANALISI DATI PARKINSON")
+st.title("RICERCA E APERTURA FILES DAL DATASET")
 
 #RICERCA PER ID PAZIENTE E APERTURA FILE
 if "show_filters" not in st.session_state:
@@ -67,7 +67,7 @@ if st.sidebar.button("Parametri di ricerca"):
     st.session_state.show_filters = True
     st.rerun()
 
-if st.sidebar.button("Ricerca per paziente"):
+if st.sidebar.button("Ricerca per ID paziente"):
     st.session_state.show_filters = False
     st.rerun()
 
@@ -84,7 +84,7 @@ if not st.session_state.show_filters:
             if codice_persona in f: # 3. Controlli se il codice è presente
                 file_scelti.append(f) # 4. Se sì, lo aggiungi alla lista
         if file_scelti:
-            file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
+            file_da_aprire=st.selectbox("Seleziona il file da analizzare", file_scelti)
         if file_da_aprire:
             match = [c['id'] for c in files if c['name'] == file_da_aprire]
             if match:
@@ -93,7 +93,7 @@ if not st.session_state.show_filters:
                     entità = syn.get(file_id)
                     df_paziente = pd.read_csv(entità.path, sep="," , header=1)
                     st.success(f"File {file_da_aprire} caricato con successo!")
-                    st.title(f"analisi: {file_da_aprire}")
+                    st.title(f"File: {file_da_aprire}")
                     st.dataframe(df_paziente)
             else:
                 st.error("ID non trovato per il paziente selezionato")
@@ -108,9 +108,6 @@ if st.session_state.show_filters:
     soggetti_selezionati_prova=[]
     soggetti_selezionati_finale=[]
     if "Genere" in scelta_parametri: 
-        # ______________________
-        # FILTRO PER GENERE - Ale
-        # ______________________
         st.sidebar.header("Analisi per genere:")
         selezione_genere=st.sidebar.selectbox("Scegliere il genere:", ["Uomo","Donna"])
         if selezione_genere == "Uomo": 
@@ -126,9 +123,6 @@ if st.session_state.show_filters:
             soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
 
     if "Età" in scelta_parametri: 
-        # ______________________
-        # FILTRO PER ETA' - Gre
-        # ______________________
         st.sidebar.header("analisi per età")
         selezione_eta=st.sidebar.selectbox("scegliere un'opzione", ["range di età","età precisa"])
         if selezione_eta == "range di età": 
@@ -190,7 +184,6 @@ if st.session_state.show_filters:
     st.dataframe(data_frame_filtrato)
     
     if "Prova" in scelta_parametri:
-    # FILTRO PROVA - Adry___________________
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
         folder_file="syn61370558"
@@ -209,7 +202,7 @@ if st.session_state.show_filters:
             if selezione_prova in nome and (("_mat" in selezione_prova)==("_mat" in nome)) and (("TURN" in selezione_prova)==("TURN" in nome)):
                 file_scelti.append(nome)
         if file_scelti:
-            file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
+            file_da_aprire=st.selectbox("seleziona il file da analizzare", file_scelti)
             if file_da_aprire:
                 match = [c['id'] for c in files_disponibili if c['name'] == file_da_aprire]
                 if match:
@@ -218,7 +211,7 @@ if st.session_state.show_filters:
                         entità = syn.get(file_id)
                         df_prova = pd.read_csv(entità.path, sep="," , header=1)
                         st.success(f"File {file_da_aprire} caricato con successo!")
-                        st.title(f"analisi: {file_da_aprire}")
+                        st.title(f"File: {file_da_aprire}")
                         st.dataframe(df_prova)
                 else:
                     st.error("Nessun file trovato per la prova selezionata")
