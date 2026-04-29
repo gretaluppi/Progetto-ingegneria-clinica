@@ -177,16 +177,15 @@ def momenti_contatto(file): #serve per creare un sottofile con solo la riga e co
     secondi_sx=0
     secondi_dx=0
     for i,row in file.iterrows():
-        diff = file["L Foot Contact"].diff() #.diff() è una funzione che sottrae il valore della riga precedente da quello della riga attuale permettendo di trovare i fronti di salita e discesa in un segnale binario
-        if diff==1:
+        diff_sx = file["L Foot Contact"].diff() #.diff() è una funzione che sottrae il valore della riga precedente da quello della riga attuale permettendo di trovare i fronti di salita e discesa in un segnale binario
+        if diff_sx==1:
             appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":1})
         else:
             appoggio_o_salita_sx.append({"Time":secondi_sx,"appoggio o salita":0}) 
         secondi_sx+=0.01
     for i,row in file.iterrows():
-        diff
-        diff = file["R Foot Contact"].diff()
-        if diff==1:
+        diff_dx= file["R Foot Contact"].diff()
+        if diff_dx==1:
             appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":1})
         else:
             appoggio_o_salita_dx.append({"Time":secondi_dx,"appoggio o salita":0}) 
