@@ -194,26 +194,31 @@ if st.session_state.show_filters:
 #     return appoggio_o_salita_sx,appoggio_o_salita_dx
 
 
-
-
-
-
     if "Prova" in scelta_parametri:
-    ____________________
-    FILTRO PROVA - Adry
-    ____________________
+     # FILTRO PROVA - Adry___________________
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
         folder_file="syn61370558"
-        files=list(syn.getChildren(folder_file))
-        prova=[child['name'] for child in files]
+        soggetti_ids= data_frame_filtrato["Subject ID"].unique().tolist()
+        all_files_in_folder = list(syn.getChildren(folder_file))
+        files_disponibili = []
+        for child in all_files_in_folder:
+            nome_file= str(child['name']).upper()
+            for sub_id in soggetti_ids: 
+                if str(sub_id).strip().upper() in nome_file:
+                    files_disponibili.append(child)
+                    break
         st.sidebar.header("seleziona tipo di prova")
         selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
-        file_scelti= [f for f in prova if selezione_prova in f and (("_mat" in selezione_prova) == ("_mat" in f)) and (("TURN" in selezione_prova) == ("TURN" in f))]
+        nomi_disponibili = [f['name'] for f in files_disponibili]
+        file_scelti = []
+        for nome in nomi_disponibili:
+            if selezione_prova in nome and (("_mat" in selezione_prova) == ("_mat" in nome)) and (("TURN" in selezione_prova) == ("TURN" in nome)):
+                file_scelti.append(nome)
         if file_scelti:
             file_da_aprire=st.selectbox("seleziona il file del soggetto da analizzare", file_scelti)
             if file_da_aprire:
-                match = [c['id'] for c in files if c['name'] == file_da_aprire]
+                match = [c['id'] for c in files_disponibili if c['name'] == file_da_aprire]
                 if match:
                     file_id =match[0] 
                     with st.spinner("Caricamento del file..."):
@@ -228,12 +233,10 @@ if st.session_state.show_filters:
                 st.warning(f"Nessun file trovato per la prova '{selezione_prova}' (esclusi mat e TURN)")
         else:
             st.info("Nessun file disponibile")
-    else
-        
-    
-    # back=st.sidebar.button("Torna alla ricerca per paziente")
-    # if back: 
-    #     codice_persona=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
+    else:
+        back=st.sidebar.button("Torna alla ricerca per paziente")
+        if back: 
+            codice_persona=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
 
 
 # else: 
