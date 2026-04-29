@@ -50,3 +50,23 @@ fig.update_layout(
     showlegend = False
 )
 st.plotly_chart(fig) 
+
+
+
+#swarm plot età-UPDRS
+
+fig = px.strip(
+    df_pd,
+    x="Age (years)",
+    y="UPDRS",
+    color = "Age (years)",
+    hover_data=["Subject ID", "Gender"],
+    title = "Distribuzione UPDRS per età"
+)
+
+fig.update_layout(
+    xaxis_title="Età" ,
+    yaxis_title="Indice UPDRS",
+    showlegend = False
+)
+st.plotly_chart(fig) 
