@@ -35,7 +35,7 @@ def momenti_contatto(df_pd, column): #serve per creare un sottofile con solo la 
         tempo_fine = df_pd[diff == -1]["Time"]
     durata_passo = tempo_fine - tempo_inizio
 
-L_tempo_contact = momenti_contatto(df_pd, "L Foot Contact")
+L_tempo_contact = momenti_contatto(df_pd, 'L Foot Contact')
 # R_tempo_contact = momenti_contatto(df_pd, "R Foot Contact")
 tempi_selezionati = []
 if L_tempo_contact == selezione_contact:
