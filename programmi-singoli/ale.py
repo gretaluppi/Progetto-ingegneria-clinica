@@ -34,4 +34,4 @@ soggetti_selezionati = []
           soggetti_selezionati.append ({"subject ID":row["Subject ID"], "gender":row["Gender"]})
 
 data_frame_filtrato = pd.DataFrame(soggetti_selezionati)
-st.dataframe(data_frame_filtrato)
+st.dataframe(data_frame_filtrato) 
