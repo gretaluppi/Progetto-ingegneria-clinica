@@ -97,10 +97,10 @@ if st.session_state.show_filters:
         st.sidebar.header("analisi per età")
         selezione_eta=st.sidebar.selectbox("scegliere un'opzione", ["range di età","età precisa"])
         if selezione_eta == "range di età": 
-            age=st.sidebar.slider("selezionare un range di eta", 0, 110, 50) 
+            age_min,age_max=st.sidebar.slider("selezionare un range di eta", 0, 110, (0,100)) 
             for i,row in df_pd.iterrows():
                 for element in soggetti_selezionati_genere:
-                    if ((row["Age (years)"]<=age) and (element["Subject ID"] == row["Subject ID"])):
+                    if ((row["Age (years)"]<=age_max and row["Age (years)"]>=age_min) and (element["Subject ID"] == row["Subject ID"])):
                         soggetti_selezionati_eta.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": row["Age (years)"]})
         if selezione_eta == "età precisa":
             age=st.sidebar.number_input("selezionare un età", 0, 110, 50, 1)

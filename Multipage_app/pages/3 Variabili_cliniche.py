@@ -33,15 +33,16 @@ with tab1:
         UPDRS=calcolo_UPDRS(Lista1,Lista2,Lista3,Lista4)
         if UPDRS >=0 and row["Gender"]!="-":
             df_pd.at[i,"UPDRS"] = UPDRS
-    
-    fig_sesso_updrs = px.strip(df_pd, x="Gender", y="UPDRS", color = "Gender", hover_data=["Subject ID", "Age (years)"], title = "Distribuzione UPDRS per genere")
-    fig_sesso_updrs.update_layout(xaxis_title="Genere", yaxis_title="Indice UPDRS", showlegend = False)
-    st.plotly_chart(fig_sesso_updrs) 
+    col1, col2 = st.columns(2)
+    with col1:
+        fig_sesso_updrs = px.strip(df_pd, x="Gender", y="UPDRS", color = "Gender", hover_data=["Subject ID", "Age (years)"], title = "Distribuzione UPDRS per genere")
+        fig_sesso_updrs.update_layout(xaxis_title="Genere", yaxis_title="Indice UPDRS", showlegend = False)
+        st.plotly_chart(fig_sesso_updrs) 
 
-    #swarm plot età-UPDRS
-    fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Gender"], title = "Distribuzione UPDRS per età")
-    fig_eta_updrs.update_layout(xaxis_title="Età", yaxis_title="Indice UPDRS", showlegend = False)
-    st.plotly_chart(fig_eta_updrs)
+    with col2:
+        fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Gender"], title = "Distribuzione UPDRS per età")
+        fig_eta_updrs.update_layout(xaxis_title="Età", yaxis_title="Indice UPDRS", showlegend = False)
+        st.plotly_chart(fig_eta_updrs)
 
 with tab2: 
     codice_paziente=st.text_input("Inserire il codice paziente", placeholder="es: NLS456")
