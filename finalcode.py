@@ -204,7 +204,7 @@ def momenti_contatto(file): #serve per creare un sottofile con solo la riga e co
     #     syn = synapseclient.Synapse()
     #     syn.login(authToken=st.session_state.auth_token)
     #     folder_file="syn61370558"
-    #     files=list(syn.getChildren(folder_file))
+    #     files=data_frame_filtrato["Subject ID"].tolist()
     #     prova=[child['name'] for child in files]
     #     st.sidebar.header("seleziona tipo di prova")
     #     selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
