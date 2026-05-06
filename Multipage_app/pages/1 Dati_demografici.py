@@ -26,15 +26,15 @@ df_control["GRUPPO"] = "CONTROL"
 df_totale= pd.concat([df_pd, df_control], ignore_index = True) #unisce tutte le righe di df_pd con quelle di df_control (non controlla se ci sono duplicati quindi se un paziente è sia in control che in pd viene riportato due volte)
 
 # Titolo
-st.title("👤 Dati Demografici")
-st.caption("Panoramica generale delle informazioni demografiche dei pazienti.")
+st.title("👤 Demographics")
+# st.caption("Panoramica generale delle informazioni demografiche dei pazienti.")
 st.divider()
 
 # Selezione gruppo
 st.sidebar.subheader("📂 Dataset")
 scelta_gruppo = st.sidebar.radio(
-    "Mostra i dati per:",
-    options=["PD", "Control", "Tutti"],
+    "Show:",
+    options=["PD", "Control", "All"],
     index=0
 )
 
@@ -47,7 +47,7 @@ else:
 
 # FILTERS
 st.sidebar.divider()
-st.sidebar.subheader("🔍 Filtri")
+st.sidebar.subheader("🔍 Filters:")
 
 #INSERIRE I FILTRI
 
@@ -67,7 +67,7 @@ st.divider()
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Distribuzione per genere")
+    st.subheader("Gender Distribution")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_gender = pd.concat([df_male, df_female], ignore_index = True) #così elimino eventuali caselle vuote
@@ -80,7 +80,7 @@ with col1:
                                                         #use_container_width=True adatta in automatico la figura allo spazio
 
 with col2:
-    st.subheader("Distribuzione dell'età")
+    st.subheader("Age Distribution")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_age = pd.concat([df_male, df_female], ignore_index = True)
@@ -96,7 +96,7 @@ with col2:
 col3, col4 = st.columns(2)
 
 with col3:
-    st.subheader("Distribuzione del peso")
+    st.subheader("Weight Distribution")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_peso = pd.concat([df_male, df_female], ignore_index = True)
@@ -107,7 +107,7 @@ with col3:
 
 
 with col4:
-    st.subheader("Distribuzione dell'altezza")
+    st.subheader("Height Distribution")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_altezza = pd.concat([df_male, df_female], ignore_index = True)
@@ -121,7 +121,7 @@ with col4:
 col5, col6 = st.columns(2)
 
 with col5:
-    st.subheader("Distribuzione per etnia")
+    st.subheader("Race Distribution")
     df_white = df_nuovo[df_nuovo["Race"] == "White"]
     df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
     df_black = df_nuovo[df_nuovo["Race"] == "Black/African American"]
@@ -132,7 +132,7 @@ with col5:
     st.plotly_chart(fig_race, use_container_width=True)
 
 with col6:
-    st.subheader("Boxplot e swarm plot")
+    st.subheader("Boxplot & Swarm Plot")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_box = pd.concat([df_male, df_female], ignore_index = True)
@@ -141,11 +141,11 @@ with col6:
         x_col = "Gender"
         y_col = "Years since PD diagnosis"
         color_col = "Gender"
-        title = "Anni dalla diagnosi di PD per genere"
+        title = "Anni dalla diagnosi di PD per genere (???)"
     else:
         x_col = "Gender" 
         y_col = "Age"
-        title = "Distribuzione dell'età per gruppo"
+        title = "Distribuzione dell'età per gruppo (???)"
 
     fig_box_swarm = go.Figure()
 
