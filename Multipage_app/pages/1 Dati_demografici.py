@@ -76,18 +76,19 @@ with col1:
     # che assegna un particolare colore in base a genere-, assegno i colori, grandezza del buco al centro
     #- se metto hole=0 avrò un grafico a torta normale altrimenti ne avrò uno a "ciambella")
     fig_gender.update_layout(margin=dict(t=10, b=10)) #metto i margini t=top e b=bottom
-    st.plotly_chart(fig_gender, use_container_width=True) #serve per msotrare il grafico, 
-                                                            #use_container_width=True adatta in automatico
-                                                            #la figura allo spazio
+    st.plotly_chart(fig_gender, use_container_width=True) #serve per mostrare il grafico, 
+                                                        #use_container_width=True adatta in automatico la figura allo spazio
 
 with col2:
     st.subheader("Distribuzione dell'età")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_age = pd.concat([df_male, df_female], ignore_index = True)
-    fig_age = px.histogram(df_age, x="Age", color="Gender", barmode="group", color_discrete_map=color_map, nbins=15)
+    fig_age = px.histogram(df_age, x="Age", color="Gender", barmode="group", color_discrete_map=color_map)
     #barmode="group" permette di avere le barre unite o affiancate e non separate, posso avere anche 
     #"overlay" che le mette impilate e "stack" che le mette impilate
+    fig_age.update_traces(xbins=dict(size=5))   #l'ampiezza di ogni intervallo è 10 anni
+    fig_age.update_layout(xaxis=dict(tick0=0, dtick=5))  # impostiamo la frequenza dei valori sull'asse X
     fig_age.update_layout(margin=dict(t=10, b=10))
     st.plotly_chart(fig_age, use_container_width=True)
 
@@ -95,6 +96,31 @@ with col2:
 col3, col4 = st.columns(2)
 
 with col3:
+    st.subheader("Distribuzione del peso")
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+    df_peso = pd.concat([df_male, df_female], ignore_index = True)
+    fig_peso = px.histogram(df_peso, x="Weight (kg)", color="Gender", barmode="group", color_discrete_map=color_map)
+    fig_peso.update_traces(xbins=dict(size=10))   #l'ampiezza di ogni intervallo è 10kg
+    fig_peso.update_layout(xaxis=dict(tick0=0, dtick=10))  # impostiamo la frequenza dei valori sull'asse X
+    st.plotly_chart(fig_peso, use_container_width=True)
+
+
+with col4:
+    st.subheader("Distribuzione dell'altezza")
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+    df_altezza = pd.concat([df_male, df_female], ignore_index = True)
+    df_altezza["Height (cm)"] = df_altezza["Height (in)"] * 2.54 # trasformiamo l'altezza da inches in cm -> si moltiplica la colonna esistente per 2.54
+    fig_altezza = px.histogram(df_altezza, x="Height (cm)", color="Gender", barmode="group", color_discrete_map=color_map)
+    fig_altezza.update_traces(xbins=dict(size=10))   #l'ampiezza di ogni intervallo è 10 cm
+    fig_altezza.update_layout(xaxis=dict(tick0=0, dtick=10)) # impostiamo la frequenza dei valori sull'asse X
+    st.plotly_chart(fig_altezza, use_container_width=True)
+
+# TERZA RIGA
+col5, col6 = st.columns(2)
+
+with col5:
     st.subheader("Distribuzione per etnia")
     df_white = df_nuovo[df_nuovo["Race"] == "White"]
     df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
@@ -105,7 +131,7 @@ with col3:
     fig_race.update_layout(margin=dict(t=10, b=10), showlegend=False)
     st.plotly_chart(fig_race, use_container_width=True)
 
-with col4:
+with col6:
     st.subheader("Boxplot e swarm plot")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
@@ -179,28 +205,7 @@ with col4:
 st.divider()
 
 
-# TERZA RIGA
-col5, col6 = st.columns(2)
 
-with col5:
-    st.subheader("Distribuzione del peso")
-    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
-    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
-    df_peso = pd.concat([df_male, df_female], ignore_index = True)
-    fig_peso = px.histogram(df_peso, x="Weight (kg)", color="Gender", barmode="group", color_discrete_map=color_map)
-    fig_peso.update_traces(xbins=dict(size=10))    #l'ampiezza di ogni intervallo è 10kg
-    st.plotly_chart(fig_peso, use_container_width=True)
-
-
-
-# with col6:
-#     st.subheader("Distribuzione dell'altezza")
-#     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
-#     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
-#     df_age = pd.concat([df_male, df_female], ignore_index = True)
-#     fig_age = px.histogram(df_age, x="Age", color="Gender", barmode="group", color_discrete_map=color_map, nbins=15)
-#     fig_age.update_layout(margin=dict(t=10, b=10))
-#     st.plotly_chart(fig_age, use_container_width=True)
 
 # TABELLA NASCOSTA
 #cols_to_show = ["Subject ID", "Age", "Gender", "Race", "Height (in)", "Weight (kg)"]
