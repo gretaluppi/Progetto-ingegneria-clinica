@@ -23,9 +23,9 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
             somma_finale=-1
         return somma_finale
 
-st.title("Variabili cliniche")
+st.title("Clinical metrics")
 st.write("In questa pagina troviamo le Variabili Cliniche.")
-tab1, tab2=st.tabs(["UPDRS","terapia paziente"])
+tab1, tab2=st.tabs(["UPDRS","Patient Therapy"])
 with tab1:
     df_pd = pd.read_csv("PD.csv", sep="," , header=1)
     df_pd["UPDRS"] = None
@@ -39,42 +39,42 @@ with tab1:
             df_pd.at[i,"UPDRS"] = UPDRS
     col1, col2 = st.columns(2)
     with col1:
-        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", hover_data=["Subject ID", "Age (years)"], title = "Distribuzione UPDRS per sesso")
-        fig_sesso_updrs.update_layout(xaxis_title="Sesso", yaxis_title="Indice UPDRS", showlegend = False)
+        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", hover_data=["Subject ID", "Age (years)"], title = "UPDRS-Sex Distribution")
+        fig_sesso_updrs.update_layout(xaxis_title="Sex", yaxis_title="UPDRS value", showlegend = False)
         st.plotly_chart(fig_sesso_updrs) 
 
     with col2:
-        fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Sex"], title = "Distribuzione UPDRS per età")
-        fig_eta_updrs.update_layout(xaxis_title="Età", yaxis_title="Indice UPDRS", showlegend = False)
+        fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Sex"], title = "UPDRS-Age Distribution")
+        fig_eta_updrs.update_layout(xaxis_title="Age", yaxis_title="UPDRS value", showlegend = False)
         st.plotly_chart(fig_eta_updrs)
 
 with tab2: 
-    codice_paziente=st.text_input("Inserire il codice paziente", placeholder="es: NLS456")
+    codice_paziente=st.text_input("Enter patient ID:", placeholder="es: NLS456")
     for i,row in df_pd.iterrows():
         if row["Subject ID"]==codice_paziente: 
             if row["Current Medications"] != "-":
                 terapia = row["Current Medications"]
                 righe_terapia = terapia.split("\n")
-                st.write("La terapia del paziente "+codice_paziente+" è: \n")
+                st.write("The patient "+codice_paziente+" is on the following therapy: \n")
                 for r in righe_terapia:
                     st.write("  • "+r+"\n")
                 if row["PD Medication Dose"] != "-":
                     dosaggio=row["PD Medication Dose"]
                     righe_dosaggio=dosaggio.split("\n")
-                    st.write("I medicinali hanno le seguenti dosi: \n")
+                    st.write("Medication dose: \n")
                     for r in righe_dosaggio:
                         st.write("  • "+r+"\n")
                 else:
-                    st.error("Dosaggio non inserito")
+                    st.error("No dose found")
             else:
                 if row["PD Medication Dose"] != "-":
                     dosaggio=row["PD Medication Dose"]
                     righe_dosaggio=dosaggio.split("\n")
-                    st.write("I medicinali hanno le seguenti dosi: \n")
+                    st.write("Medication dose: \n")
                     for r in righe_dosaggio:
                         st.write("  • "+r+"\n")
                 else: 
-                    st.error("Terapia non esistente o non inserita")
+                    st.error("No therapy found")
             
         
 

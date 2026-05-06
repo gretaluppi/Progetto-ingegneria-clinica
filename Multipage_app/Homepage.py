@@ -15,22 +15,22 @@ def token(nome):
     for i,row in file_token.iterrows():
         if row["Name"]==nome.lower():
             token_finale=row["Token"]
-            st.success("Login effettuato")
+            st.success("Access granted.")
             return token_finale,True
-    token_finale="Nessun token valido trovato, riprovare"
+    token_finale="No token found, try again."
     return token_finale,False
         
 def login(): 
-    st.title("Login")
-    codice_persona=st.text_input("Inserire il codice persona per l'accesso", placeholder="es: Francesca")
-    if st.button("Accedi"):
+    st.title("Access")
+    codice_persona=st.text_input("Enter your user ID", placeholder="es: Francesca")
+    if st.button("Login"):
         tf,result=token(codice_persona)
         if result:
             syn = synapseclient.Synapse()
             syn.login(authToken=tf)
             st.session_state.logged_in = True
             st.session_state.auth_token=tf
-            st.success("Login effettuato")
+            st.success("Access granted.")
             st.rerun()
         else: 
             st.error(tf)
@@ -50,7 +50,7 @@ st.sidebar.divider()
 
 # HOMEPAGE
 st.title("Parkinsonian Data Analysis Interface")
-st.subheader("Dashboard per l’analisi dei dati dei pazienti con Parkinson")
+st.subheader("Parkinson's Disease patient analytics")
 
 st.write(
     "Questa applicazione permette al medico di consultare dati demografici, "
@@ -65,16 +65,16 @@ col1, col2 = st.columns(2)
 
 with col1:
     with st.container(border=True):
-        st.subheader("👤 Dati demografici")
+        st.subheader("👤 Demographics")
         st.write("Visualizza le informazioni generali dei pazienti: identificativo, età, sesso e altri dati anagrafici.")
-        if st.button("Vai alla sezione →", key="btn_demo", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_demo", use_container_width=True, type="primary"):
             st.switch_page("pages/1 Dati_demografici.py")
 
 with col2:
     with st.container(border=True):
-        st.subheader("📊 Dati statistici")
+        st.subheader("📊 Statistics")
         st.write("Consulta statistiche descrittive, medie, deviazioni standard e confronti tra variabili.")
-        if st.button("Vai alla sezione →", key="btn_stat", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_stat", use_container_width=True, type="primary"):
             st.switch_page("pages/2 Dati_statistici.py")
 
 st.divider()
@@ -84,16 +84,16 @@ col3, col4 = st.columns(2)
 
 with col3:
     with st.container(border=True):
-        st.subheader("🔎 Ricerca e apertura files")
+        st.subheader("🔎 Research & Open Files")
         st.write("Esplora il dataset e accedi ai file tramite ricerca per parametri.")
-        if st.button("Vai alla sezione →", key="btn_dataset", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_dataset", use_container_width=True, type="primary"):
             st.switch_page("pages/3 Ricerca_e_Apertura_files.py")
 
 with col4:
     with st.container(border=True):
-        st.subheader("🩺 Variabili cliniche")
+        st.subheader("🩺 Clinical metrics")
         st.write("Analizza le variabili cliniche dei pazienti, inclusi punteggi e indicatori collegati alla scala UPDRS.")
-        if st.button("Vai alla sezione →", key="btn_clin", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_clin", use_container_width=True, type="primary"):
             st.switch_page("pages/4 Variabili_cliniche.py")
 
 st.divider()
@@ -103,14 +103,14 @@ col5, col6 = st.columns(2)
 
 with col5:
     with st.container(border=True):
-        st.subheader("🚶 Variabili movimento")
+        st.subheader("🚶 Movements metrics")
         st.write("Esamina le variabili relative al movimento, alla postura e alle caratteristiche motorie dei pazienti.")
-        if st.button("Vai alla sezione →", key="btn_mov", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_mov", use_container_width=True, type="primary"):
             st.switch_page("pages/5 Variabili_movimento.py")
 
 with col6:
     with st.container(border=True):
         st.subheader("🧬 FHIR")
         st.write("Gestione e struttura dei dati secondo standard sanitari internazionali.")
-        if st.button("Vai alla sezione →", key="btn_fhir", use_container_width=True, type="primary"):
+        if st.button("Visit section →", key="btn_fhir", use_container_width=True, type="primary"):
             st.switch_page("pages/6 FHIR.py")
