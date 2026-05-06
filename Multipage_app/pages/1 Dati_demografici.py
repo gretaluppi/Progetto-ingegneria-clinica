@@ -187,7 +187,7 @@ with col5:
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_peso = pd.concat([df_male, df_female], ignore_index = True)
-    fig_peso = px.histogram(df_peso, x="Weight", color="Gender", barmode="group", color_discrete_map=color_map)
+    fig_peso = px.histogram(df_peso, x="Weight (kg)", color="Gender", barmode="group", color_discrete_map=color_map)
     fig_peso.update_traces(xbins=dict(size=10))    #l'ampiezza di ogni intervallo è 10kg
     st.plotly_chart(fig_peso, use_container_width=True)
 
