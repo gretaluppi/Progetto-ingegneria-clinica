@@ -178,6 +178,30 @@ with col4:
     st.plotly_chart(fig_box_swarm, use_container_width=True)
 st.divider()
 
+
+# TERZA RIGA
+col5, col6 = st.columns(2)
+
+with col5:
+    st.subheader("Distribuzione del peso")
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+    df_peso = pd.concat([df_male, df_female], ignore_index = True)
+    fig_peso = px.histogram(df_peso, x="Weight", color="Gender", barmode="group", color_discrete_map=color_map)
+    fig_peso.update_traces(xbins=dict(size=10))    #l'ampiezza di ogni intervallo è 10kg
+    st.plotly_chart(fig_peso, use_container_width=True)
+
+
+
+# with col6:
+#     st.subheader("Distribuzione dell'altezza")
+#     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+#     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+#     df_age = pd.concat([df_male, df_female], ignore_index = True)
+#     fig_age = px.histogram(df_age, x="Age", color="Gender", barmode="group", color_discrete_map=color_map, nbins=15)
+#     fig_age.update_layout(margin=dict(t=10, b=10))
+#     st.plotly_chart(fig_age, use_container_width=True)
+
 # TABELLA NASCOSTA
 #cols_to_show = ["Subject ID", "Age", "Gender", "Race", "Height (in)", "Weight (kg)"]
 
