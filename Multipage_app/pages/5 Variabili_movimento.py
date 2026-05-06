@@ -42,30 +42,3 @@ if file_selezionati:
             df_sx=pd.DataFrame(appoggio_sx)
             df_dx=pd.DataFrame(appoggio_dx)
 
-
-fig = go.Figure()
-i = st.slider("Avanzamento nel tempo",1,len(df_sx))
-fig.add_trace(go.Scatter(
-    x=df_sx["Time"].iloc[:i],
-    y=df_sx["appoggio o salita"].iloc[:i],
-    mode="lines",
-    line_shape="hv",
-    name="Left Foot"
-))
-fig.add_trace(go.Scatter(
-    x=df_dx["Time"].iloc[:i],
-    y=df_dx["appoggio o salita"].iloc[:i],
-    mode="lines",
-    line_shape="hv",
-    name="Right Foot"
-))
-fig.update_layout(
-    xaxis_title="Time (s)",
-    yaxis_title="Foot Contact (0 = swing, 1 = stance)"
-    
-)
-st.plotly_chart(fig) #mostra il grafico disegnato
-
-
-
-                    

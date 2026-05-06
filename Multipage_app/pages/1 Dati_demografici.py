@@ -23,7 +23,7 @@ df_pd = df_pd.rename(columns = {"Age (years)" : "Age"}) #rinomino le colonne dei
 df_pd["GRUPPO"] = "PD"
 df_control["GRUPPO"] = "CONTROL"
 
-df = pd.concat([df_pd, df_control], ignore_index = True)
+df_totale= pd.concat([df_pd, df_control], ignore_index = True) #unisce tutte le righe di df_pd con quelle di df_control (non controlla se ci sono duplicati quindi se un paziente è sia in control che in pd viene riportato due volte)
 
 # Titolo
 st.title("👤 Dati Demografici")
@@ -39,11 +39,11 @@ scelta_gruppo = st.sidebar.radio(
 )
 
 if scelta_gruppo == "PD":
-    df = df_pd.copy()
+    df_nuovo=df_pd
 elif scelta_gruppo == "Control":
-    df = df_control.copy()
+    df_nuovo= df_control
 else:
-    df = df.copy()
+    df_nuovo= df_totale
 
 # FILTERS
 st.sidebar.divider()
@@ -68,25 +68,26 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("Distribuzione per genere")
-
-    df_male = df[df["Gender"] == "Male"]
-    df_female = df[df["Gender"] == "Female"]
-
-    df_gender = pd.concat([df_male, df_female], ignore_index = True)
-
-    fig_gender = px.pie(df_gender, names="Gender", color="Gender", color_discrete_map=color_map, hole=0.4 )
-    fig_gender.update_layout(margin=dict(t=10, b=10))
-    st.plotly_chart(fig_gender, use_container_width=True)
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+    df_gender = pd.concat([df_male, df_female], ignore_index = True) #così elimino eventuali caselle vuote
+    fig_gender = px.pie(df_gender, names="Gender", color="Gender", color_discrete_map=color_map, hole=0.4 ) 
+    #px.pie (valori,categoria da selezionare,colori - che nel nostro caso di riferiscono a color_map 
+    # che assegna un particolare colore in base a genere-, assegno i colori, grandezza del buco al centro
+    #- se metto hole=0 avrò un grafico a torta normale altrimenti ne avrò uno a "ciambella")
+    fig_gender.update_layout(margin=dict(t=10, b=10)) #metto i margini t=top e b=bottom
+    st.plotly_chart(fig_gender, use_container_width=True) #serve per msotrare il grafico, 
+                                                            #use_container_width=True adatta in automatico
+                                                            #la figura allo spazio
 
 with col2:
     st.subheader("Distribuzione dell'età")
-
-    df_male = df[df["Gender"] == "Male"]
-    df_female = df[df["Gender"] == "Female"]
-
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_age = pd.concat([df_male, df_female], ignore_index = True)
-
     fig_age = px.histogram(df_age, x="Age", color="Gender", barmode="group", color_discrete_map=color_map, nbins=15)
+    #barmode="group" permette di avere le barre unite o affiancate e non separate, posso avere anche 
+    #"overlay" che le mette impilate e "stack" che le mette impilate
     fig_age.update_layout(margin=dict(t=10, b=10))
     st.plotly_chart(fig_age, use_container_width=True)
 
@@ -95,27 +96,19 @@ col3, col4 = st.columns(2)
 
 with col3:
     st.subheader("Distribuzione per etnia")
-
-    df_white = df[df["Race"] == "White"]
-    df_asian = df[df["Race"] == "Asian"]
-    df_black = df[df["Race"] == "Black/African American"]
-
+    df_white = df_nuovo[df_nuovo["Race"] == "White"]
+    df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
+    df_black = df_nuovo[df_nuovo["Race"] == "Black/African American"]
     df_race = pd.concat([df_white, df_asian, df_black], ignore_index = True)
-
-    race_counts = pd.DataFrame({
-        "Race" : ["White", "Asian", "Black/African American"],
-        "Count" : [len(df_white), len(df_asian), len(df_black)]})
-
+    race_counts = pd.DataFrame({"Race" : ["White", "Asian", "Black/African American"], "Count" : [len(df_white), len(df_asian), len(df_black)]})
     fig_race = px.bar(race_counts, x="Count", y="Race", orientation="h", color="Race", color_discrete_sequence=px.colors.qualitative.Safe)
     fig_race.update_layout(margin=dict(t=10, b=10), showlegend=False)
     st.plotly_chart(fig_race, use_container_width=True)
 
 with col4:
     st.subheader("Boxplot e swarm plot")
-
-    df_male = df[df["Gender"] == "Male"]
-    df_female = df[df["Gender"] == "Female"]
-
+    df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+    df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_box = pd.concat([df_male, df_female], ignore_index = True)
 
     if scelta_gruppo == "PD":
