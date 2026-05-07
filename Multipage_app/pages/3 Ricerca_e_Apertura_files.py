@@ -57,17 +57,17 @@ df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
 df_pd = pd.read_csv("PD.csv", sep="," , header=1)
 
 # IMPOSTAZIONE PAGINA
-st.title("RICERCA E APERTURA FILES DAL DATASET")
+st.title("🔍 Search and Open Files")
 
 #RICERCA PER ID PAZIENTE E APERTURA FILE
 if "show_filters" not in st.session_state:
     st.session_state.show_filters = False
 
-if st.sidebar.button("Parametri di ricerca"):
+if st.sidebar.button("Search by criteria"):
     st.session_state.show_filters = True
     st.rerun()
 
-if st.sidebar.button("Ricerca per ID paziente"):
+if st.sidebar.button("Patient ID search"):
     st.session_state.show_filters = False
     st.rerun()
 
@@ -77,28 +77,29 @@ if not st.session_state.show_filters:
     folder_file="syn61370558"
     files=list(syn.getChildren(folder_file))
     paziente=[child['name'] for child in files]
-    codice_persona=st.sidebar.text_input("Inserire il codice paziente", placeholder="es: NLS456")
+    st.info("If you do not want to search for files using search criteria, enter the patient ID in the designated field to view all files available in the dataset for that patient.")  
+    codice_persona=st.sidebar.text_input("Patient ID", placeholder="es: NLS456")
     if codice_persona:
         file_scelti = [] # 1. Crei una lista vuota
         for f in paziente: # 2. Cicli su ogni nome file
             if codice_persona in f: # 3. Controlli se il codice è presente
                 file_scelti.append(f) # 4. Se sì, lo aggiungi alla lista
         if file_scelti:
-            file_da_aprire=st.selectbox("Seleziona il file da analizzare", file_scelti)
+            file_da_aprire=st.selectbox("Select file to analyze", file_scelti)
         if file_da_aprire:
             match = [c['id'] for c in files if c['name'] == file_da_aprire]
             if match:
                 file_id =match[0] 
-                with st.spinner("Caricamento del file..."):
+                with st.spinner("Downloading file..."):
                     entità = syn.get(file_id)
                     df_paziente = pd.read_csv(entità.path, sep="," , header=1)
-                    st.success(f"File {file_da_aprire} caricato con successo!")
+                    st.success(f"File {file_da_aprire} downloaded successfully!")
                     st.title(f"File: {file_da_aprire}")
                     st.dataframe(df_paziente)
             else:
-                st.error("ID non trovato per il paziente selezionato")
+                st.error("ID not found for the selected patient")
         else:
-            st.warning(f"Nessun file trovato per il paziente '{codice_persona}'")
+            st.warning(f"No files found for patient '{codice_persona}'")
 
 if st.session_state.show_filters:
     scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova"])
