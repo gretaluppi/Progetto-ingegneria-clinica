@@ -8,22 +8,22 @@ def token(nome):
     for i,row in file_token.iterrows():
         if row["Name"]==nome.lower():
             token_finale=row["Token"]
-            st.success("Login effettuato")
+            st.success("Login successful.")
             return token_finale,True
-    token_finale="Nessun token valido trovato, riprovare"
+    token_finale="No valid token found, please try again."
     return token_finale,False
         
 def login(): 
     st.title("Login")
-    codice_persona=st.text_input("Inserire il codice persona per l'accesso", placeholder="es: Francesca")
-    if st.button("Accedi"):
+    codice_persona=st.text_input("Enter your user ID", placeholder="es: Francesca")
+    if st.button("Login"):
         tf,result=token(codice_persona)
         if result:
             syn = synapseclient.Synapse()
             syn.login(authToken=tf)
             st.session_state.logged_in = True
             st.session_state.auth_token=tf
-            st.success("Login effettuato")
+            st.success("Login successful.")
             st.rerun()
         else: 
             st.error(tf)
@@ -102,20 +102,20 @@ if not st.session_state.show_filters:
             st.warning(f"No files found for patient '{codice_persona}'")
 
 if st.session_state.show_filters:
-    scelta_parametri=st.sidebar.multiselect("Selezionare parametri",["Genere", "Età", "UPDRS", "Prova"])
+    scelta_parametri=st.sidebar.multiselect("Select parameters",["Gender", "Age", "UPDRS", "Test"])
     soggetti_selezionati_genere=[]
     soggetti_selezionati_eta=[]
     soggetti_selezionati_UPDRS=[]
     soggetti_selezionati_prova=[]
     soggetti_selezionati_finale=[]
-    if "Genere" in scelta_parametri: 
-        st.sidebar.header("Analisi per genere:")
-        selezione_genere=st.sidebar.selectbox("Scegliere il genere:", ["Uomo","Donna"])
-        if selezione_genere == "Uomo": 
+    if "Gender" in scelta_parametri: 
+        st.sidebar.header("Analysis by gender:")
+        selezione_genere=st.sidebar.selectbox("Choose gender:", ["Male","Female"])
+        if selezione_genere == "Male": 
             for i,row in df_pd.iterrows(): 
                 if row["Gender"] == "Male":
                     soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
-        if selezione_genere == "Donna":
+        if selezione_genere == "Female":
             for i,row in df_pd.iterrows():
                 if row["Gender"]== "Female":
                     soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
@@ -123,17 +123,17 @@ if st.session_state.show_filters:
         for i,row in df_pd.iterrows(): 
             soggetti_selezionati_genere.append ({"Subject ID":row["Subject ID"], "Gender":row["Gender"]})
 
-    if "Età" in scelta_parametri: 
-        st.sidebar.header("analisi per età")
-        selezione_eta=st.sidebar.selectbox("scegliere un'opzione", ["range di età","età precisa"])
-        if selezione_eta == "range di età": 
-            age_min,age_max=st.sidebar.slider("selezionare un range di eta", 0, 110, (0,100)) 
+    if "Age" in scelta_parametri: 
+        st.sidebar.header("Analysis by age:")
+        selezione_eta=st.sidebar.selectbox("Choose an option:", ["Age range","Specific age"])
+        if selezione_eta == "Age range": 
+            age_min,age_max=st.sidebar.slider("select age range", 0, 110, (0,100)) 
             for i,row in df_pd.iterrows():
                 for element in soggetti_selezionati_genere:
                     if ((row["Age (years)"]<=age_max and row["Age (years)"]>=age_min) and (element["Subject ID"] == row["Subject ID"])):
                         soggetti_selezionati_eta.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": row["Age (years)"]})
-        if selezione_eta == "età precisa":
-            age=st.sidebar.number_input("selezionare un età", 0, 110, 50, 1)
+        if selezione_eta == "Specific age":
+            age=st.sidebar.number_input("select age", 0, 110, 50, 1)
             for i,row in df_pd.iterrows():
                 for element in soggetti_selezionati_genere:
                     if (row["Age (years)"]==age) and (element["Subject ID"]==row["Subject ID"]):
@@ -146,8 +146,8 @@ if st.session_state.show_filters:
     
     
     if "UPDRS" in scelta_parametri:
-        st.sidebar.header("analisi UPDRS")
-        options = st.sidebar.multiselect("Range UPDRS",["Lieve (0-32)", "Moderato (33-58)", "Severo (59-102)", "Grave (> 103)"],)
+        st.sidebar.header("UPDRS Analysis")
+        options = st.sidebar.multiselect("UPDRS Range",["Mild (0-32)", "Moderate (33-58)", "Severe (59-102)", "Critical (> 103)"],)
         for i, row in df_pd.iterrows():
             Lista1 = [row["MDSUPDRS_1-1"], row["MDSUPDRS_1-2"], row["MDSUPDRS_1-3"], row["MDSUPDRS_1-4"], row["MDSUPDRS_1-5"], row["MDSUPDRS_1-6"], row["MDSUPDRS_1-7"], row["MDSUPDRS_1-8"], row["MDSUPDRS_1-9"], row["MDSUPDRS_1-10"], row["MDSUPDRS_1-11"], row["MDSUPDRS_1-12"], row["MDSUPDRS_1-13"]]
             Lista2 = [row["MDSUPDRS_2-1"], row["MDSUPDRS_2-2"], row["MDSUPDRS_2-3"], row["MDSUPDRS_2-4"], row["MDSUPDRS_2-5"], row["MDSUPDRS_2-6"], row["MDSUPDRS_2-7"], row["MDSUPDRS_2-8"], row["MDSUPDRS_2-9"], row["MDSUPDRS_2-10"], row["MDSUPDRS_2-11"], row["MDSUPDRS_2-12"], row["MDSUPDRS_2-13"]]
@@ -156,16 +156,16 @@ if st.session_state.show_filters:
             UPDRS=calcolo_UPDRS(Lista1,Lista2,Lista3,Lista4)
             for element in soggetti_selezionati_eta:
                 if element["Subject ID"]==row["Subject ID"]: 
-                    if "Lieve (0-32)" in options:
+                    if "Mild (0-32)" in options:
                         if UPDRS >= 0 and UPDRS <= 32:
-                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( lieve)"})
-                    if "Moderato (33-58)" in options:
+                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( mild)"})
+                    if "Moderate (33-58)" in options:
                         if UPDRS >= 33 and UPDRS <= 58:
-                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( moderato)"})                
-                    if "Severo (59-102)" in options:
+                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( moderate)"})                
+                    if "Severe (59-102)" in options:
                         if UPDRS >= 59 and UPDRS <= 102:
-                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( severo)"})
-                    if "Grave (> 103)" in options:
+                            soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( severe)"})
+                    if "Critical (> 103)" in options:
                         if UPDRS >= 103:
                             soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": element["Age"],"MDS-UPDRS": str(UPDRS)+"( grave)"})
     else:
@@ -181,10 +181,10 @@ if st.session_state.show_filters:
                         soggetti_selezionati_UPDRS.append({"Subject ID":element["Subject ID"], "Gender":element["Gender"], "Age": row["Age (years)"],"MDS-UPDRS": UPDRS})
         
     data_frame_filtrato = pd.DataFrame(soggetti_selezionati_UPDRS)
-    st.subheader("Dati filtrati")
+    st.subheader("Filtered subjects based on selected criteria:")
     st.dataframe(data_frame_filtrato)
     
-    if "Prova" in scelta_parametri:
+    if "Test" in scelta_parametri:
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
         folder_file="syn61370558"
@@ -195,31 +195,31 @@ if st.session_state.show_filters:
             for element in soggetti_selezionati_UPDRS:
                 if element["Subject ID"] in child['name']:
                     files_disponibili.append(child)
-        st.sidebar.header("seleziona tipo di prova")
-        selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
+        st.sidebar.header("select test:")
+        selezione_prova=st.sidebar.selectbox("test executed", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
         nomi_disponibili = [f['name'] for f in files_disponibili]
         file_scelti = []
         for nome in nomi_disponibili:
             if selezione_prova in nome and (("_mat" in selezione_prova)==("_mat" in nome)) and (("TURN" in selezione_prova)==("TURN" in nome)):
                 file_scelti.append(nome)
         if file_scelti:
-            file_da_aprire=st.selectbox("seleziona il file da analizzare", file_scelti)
+            file_da_aprire=st.selectbox("select the file to analyze", file_scelti)
             if file_da_aprire:
                 match = [c['id'] for c in files_disponibili if c['name'] == file_da_aprire]
                 if match:
                     file_id =match[0] 
-                    with st.spinner("Caricamento del file..."):
+                    with st.spinner("Downloading file..."):
                         entità = syn.get(file_id)
                         df_prova = pd.read_csv(entità.path, sep="," , header=1)
-                        st.success(f"File {file_da_aprire} caricato con successo!")
+                        st.success(f"File {file_da_aprire} downloaded successfully!")
                         st.title(f"File: {file_da_aprire}")
                         st.dataframe(df_prova)
                 else:
-                    st.error("Nessun file trovato per la prova selezionata")
+                    st.error("No file found for the selected test")
             else:
-                st.warning(f"Nessun file trovato per la prova '{selezione_prova}' (esclusi mat e TURN)")
+                st.warning(f"No file found for the test '{selezione_prova}' (excluded mat and TURN)")
         else:
-            st.info("Nessun file disponibile")
-   
+            st.info("No file available")
+    
 
 
