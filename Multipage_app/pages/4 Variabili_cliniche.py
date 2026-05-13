@@ -2,6 +2,7 @@ import synapseclient
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 syn = synapseclient.Synapse() 
 syn.login(authToken="eyJ0eXAiOiJKV1QiLCJraWQiOiJXN05OOldMSlQ6SjVSSzpMN1RMOlQ3TDc6M1ZYNjpKRU9VOjY0NFI6VTNJWDo1S1oyOjdaQ0s6RlBUSCIsImFsZyI6IlJTMjU2In0.eyJhY2Nlc3MiOnsic2NvcGUiOlsidmlldyIsImRvd25sb2FkIiwibW9kaWZ5Il0sIm9pZGNfY2xhaW1zIjp7fX0sInRva2VuX3R5cGUiOiJQRVJTT05BTF9BQ0NFU1NfVE9LRU4iLCJpc3MiOiJodHRwczovL3JlcG8tcHJvZC5wcm9kLnNhZ2ViYXNlLm9yZy9hdXRoL3YxIiwiYXVkIjoiMCIsIm5iZiI6MTc3NjkyNzg3MSwiaWF0IjoxNzc2OTI3ODcxLCJqdGkiOiIzNjE1MSIsInN1YiI6IjM1ODQ3MjcifQ.NWCaIH5Fv5Eqc1aQAMW0r3PPAbQ4K2vEJ1TxCUI6RFpEcMtesTafdBupjW3luxC57nRP8ApyqnMVKu2g3av9Clcccn818tHyN0cu-VILTt8_bunmpADKwUIuKeqU9eczo_pqjorUW0h-BusMOkitSaFvbwa4mK6co_K0e7YqG7uFlD1t9VPPhQQalZOl8XUw3pXHjkazTAx8qHia1dqU9BdK_822PwRQ3OWsM36SGgg5muBGCmmfhhOmmF7GwxXXLH073WHut70JZwjkpLcuvQ3l7xIh5wlO0eShfdpZDy7hJDZSpx2sPn3DfM_B39HkTdosgW-gpi-1QTfJFJZdnw") 
@@ -24,8 +25,8 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
         return somma_finale
 
 st.title("Clinical metrics")
-st.write("In questa pagina troviamo le Variabili Cliniche.")
-tab1, tab2=st.tabs(["UPDRS","Patient Therapy"])
+# st.write("In questa pagina troviamo le Variabili Cliniche.")
+tab1, tab2 = st.tabs(["Diagnosis", "Therapy"])
 with tab1:
     df_pd = pd.read_csv("PD.csv", sep="," , header=1)
     df_pd["UPDRS"] = None
@@ -37,16 +38,84 @@ with tab1:
         UPDRS=calcolo_UPDRS(Lista1,Lista2,Lista3,Lista4)
         if UPDRS >=0:
             df_pd.at[i,"UPDRS"] = UPDRS
+
     col1, col2 = st.columns(2)
     with col1:
-        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", hover_data=["Subject ID", "Age (years)"], title = "UPDRS-Sex Distribution")
+        st.subheader("UPDRS-Sex Distribution")
+        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", hover_data=["Subject ID", "Age (years)"], title = "")
         fig_sesso_updrs.update_layout(xaxis_title="Sex", yaxis_title="UPDRS value", showlegend = False)
         st.plotly_chart(fig_sesso_updrs) 
 
     with col2:
-        fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Sex"], title = "UPDRS-Age Distribution")
-        fig_eta_updrs.update_layout(xaxis_title="Age", yaxis_title="UPDRS value", showlegend = False)
-        st.plotly_chart(fig_eta_updrs)
+        # fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Sex"], title = "UPDRS-Age Distribution")
+        # fig_eta_updrs.update_layout(xaxis_title="Age", yaxis_title="UPDRS value", showlegend = False)
+        # st.plotly_chart(fig_eta_updrs)
+        st.subheader("Years since PD diagnosis")
+        df_male = df_pd[df_pd["Gender"] == "Male"]
+        df_female = df_pd[df_pd["Gender"] == "Female"]
+        df_box = pd.concat([df_male, df_female], ignore_index = True)
+        x_col = "Gender"
+        y_col = "Years since PD diagnosis"
+        color_col = "Gender"
+        title = ""
+        fig_box_swarm = go.Figure()
+
+        # MALE BOX
+        fig_box_swarm.add_trace(go.Box(
+            x=["Male"] * len(df_male),
+            y=df_male[y_col],
+            name="Male",
+            boxmean=True,
+            line=dict(color="#4A90D9"),
+            fillcolor="rgba(74,144,217,0.3)"
+        ))
+
+        # MALE SWARM
+        fig_box_swarm.add_trace(go.Scatter(
+            x=["Male"] * len(df_male),
+            y=df_male[y_col],
+            mode="markers",
+            marker=dict(
+                size=7,
+                color="#1f5fbf",
+                opacity=0.8
+            ),
+            showlegend=False
+        ))
+
+        # FEMALE BOX
+        fig_box_swarm.add_trace(go.Box(
+            x=["Female"] * len(df_female),
+            y=df_female[y_col],
+            name="Female",
+            boxmean=True,
+            line=dict(color="#E8729A"),
+            fillcolor="rgba(232,114,154,0.3)"
+        ))
+
+        # FEMALE SWARM
+        fig_box_swarm.add_trace(go.Scatter(
+            x=["Female"] * len(df_female),
+            y=df_female[y_col],
+            mode="markers",
+            marker=dict(
+                size=7,
+                color="#c2185b",
+                opacity=0.8
+            ),
+            showlegend=False
+        ))
+
+        fig_box_swarm.update_layout(
+            title=title,
+            margin=dict(t=30, b=10),
+            boxmode="overlay",
+            yaxis = dict(title = "Years"),
+            xaxis = dict(title = " ")
+        )
+
+        st.plotly_chart(fig_box_swarm, use_container_width=True)
+
 
 with tab2: 
     codice_paziente=st.text_input("Enter patient ID:", placeholder="es: NLS456")

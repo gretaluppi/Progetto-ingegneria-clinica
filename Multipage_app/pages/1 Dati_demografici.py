@@ -26,7 +26,7 @@ df_control["GRUPPO"] = "CONTROL"
 df_totale= pd.concat([df_pd, df_control], ignore_index = True) #unisce tutte le righe di df_pd con quelle di df_control (non controlla se ci sono duplicati quindi se un paziente è sia in control che in pd viene riportato due volte)
 
 # Titolo
-st.title("👤 Demographics")
+st.title("Demographics")
 # st.caption("Panoramica generale delle informazioni demografiche dei pazienti.")
 st.divider()
 
@@ -46,8 +46,8 @@ else:
     df_nuovo= df_totale
 
 # FILTERS
-st.sidebar.divider()
-st.sidebar.subheader("🔍 Filters:")
+# st.sidebar.divider()
+# st.sidebar.subheader("🔍 Filters:")
 
 #INSERIRE I FILTRI
 
@@ -60,8 +60,6 @@ color_map = {"Male": "#4A90D9", "Female": "#E8729A"}
 #col1.metric("Pazienti", len(df))
 #col2.metric("Età media", f"{df['Age'].mean():.1f} yrs")
 #col3.metric("Maschi / Femmine", f"{(df['Gender']=='Maschi').sum()} / {(df['Gender']=='Femmine').sum()}")
-
-st.divider()
 
 # PRIMA RIGA
 col1, col2 = st.columns(2)
@@ -80,7 +78,7 @@ with col1:
                                                         #use_container_width=True adatta in automatico la figura allo spazio
 
 with col2:
-    st.subheader("Age distribution per group")
+    st.subheader("Age distribution")
     df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
     df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
     df_box = pd.concat([df_male, df_female], ignore_index = True)
@@ -187,88 +185,88 @@ with col4:
 st.divider()
 
 # TERZA RIGA
-col5, col6 = st.columns(2)
+# col5, col6 = st.columns(2)
 
-with col5:
-    st.subheader("Race Distribution")
-    df_white = df_nuovo[df_nuovo["Race"] == "White"]
-    df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
-    df_black = df_nuovo[df_nuovo["Race"] == "Black/African American"]
-    df_race = pd.concat([df_white, df_asian, df_black], ignore_index = True)
-    race_counts = pd.DataFrame({"Race" : ["White", "Asian", "Black/African American"], "Count" : [len(df_white), len(df_asian), len(df_black)]})
-    fig_race = px.bar(race_counts, x="Count", y="Race", orientation="h", color="Race", color_discrete_sequence=px.colors.qualitative.Safe)
-    fig_race.update_layout(margin=dict(t=10, b=10), showlegend=False)
-    st.plotly_chart(fig_race, use_container_width=True)
+# with col5:
+#     st.subheader("Race Distribution")
+#     df_white = df_nuovo[df_nuovo["Race"] == "White"]
+#     df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
+#     df_black = df_nuovo[df_nuovo["Race"] == "Black/African American"]
+#     df_race = pd.concat([df_white, df_asian, df_black], ignore_index = True)
+#     race_counts = pd.DataFrame({"Race" : ["White", "Asian", "Black/African American"], "Count" : [len(df_white), len(df_asian), len(df_black)]})
+#     fig_race = px.bar(race_counts, x="Count", y="Race", orientation="h", color="Race", color_discrete_sequence=px.colors.qualitative.Safe)
+#     fig_race.update_layout(margin=dict(t=10, b=10), showlegend=False)
+#     st.plotly_chart(fig_race, use_container_width=True)
 
 
-with col6:
-    if scelta_gruppo == "PD":
-        st.subheader("Years since PD diagnosis")
-        df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
-        df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
-        df_box = pd.concat([df_male, df_female], ignore_index = True)
-        x_col = "Gender"
-        y_col = "Years since PD diagnosis"
-        color_col = "Gender"
-        title = " "
-        fig_box_swarm = go.Figure()
+# with col6:
+#     if scelta_gruppo == "PD":
+#         st.subheader("Years since PD diagnosis")
+#         df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
+#         df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
+#         df_box = pd.concat([df_male, df_female], ignore_index = True)
+#         x_col = "Gender"
+#         y_col = "Years since PD diagnosis"
+#         color_col = "Gender"
+#         title = " "
+#         fig_box_swarm = go.Figure()
 
-        # MALE BOX
-        fig_box_swarm.add_trace(go.Box(
-            x=["Male"] * len(df_male),
-            y=df_male[y_col],
-            name="Male",
-            boxmean=True,
-            line=dict(color="#4A90D9"),
-            fillcolor="rgba(74,144,217,0.3)"
-        ))
+#         # MALE BOX
+#         fig_box_swarm.add_trace(go.Box(
+#             x=["Male"] * len(df_male),
+#             y=df_male[y_col],
+#             name="Male",
+#             boxmean=True,
+#             line=dict(color="#4A90D9"),
+#             fillcolor="rgba(74,144,217,0.3)"
+#         ))
 
-        # MALE SWARM
-        fig_box_swarm.add_trace(go.Scatter(
-            x=["Male"] * len(df_male),
-            y=df_male[y_col],
-            mode="markers",
-            marker=dict(
-                size=7,
-                color="#1f5fbf",
-                opacity=0.8
-            ),
-            showlegend=False
-        ))
+#         # MALE SWARM
+#         fig_box_swarm.add_trace(go.Scatter(
+#             x=["Male"] * len(df_male),
+#             y=df_male[y_col],
+#             mode="markers",
+#             marker=dict(
+#                 size=7,
+#                 color="#1f5fbf",
+#                 opacity=0.8
+#             ),
+#             showlegend=False
+#         ))
 
-        # FEMALE BOX
-        fig_box_swarm.add_trace(go.Box(
-            x=["Female"] * len(df_female),
-            y=df_female[y_col],
-            name="Female",
-            boxmean=True,
-            line=dict(color="#E8729A"),
-            fillcolor="rgba(232,114,154,0.3)"
-        ))
+#         # FEMALE BOX
+#         fig_box_swarm.add_trace(go.Box(
+#             x=["Female"] * len(df_female),
+#             y=df_female[y_col],
+#             name="Female",
+#             boxmean=True,
+#             line=dict(color="#E8729A"),
+#             fillcolor="rgba(232,114,154,0.3)"
+#         ))
 
-        # FEMALE SWARM
-        fig_box_swarm.add_trace(go.Scatter(
-            x=["Female"] * len(df_female),
-            y=df_female[y_col],
-            mode="markers",
-            marker=dict(
-                size=7,
-                color="#c2185b",
-                opacity=0.8
-            ),
-            showlegend=False
-        ))
+#         # FEMALE SWARM
+#         fig_box_swarm.add_trace(go.Scatter(
+#             x=["Female"] * len(df_female),
+#             y=df_female[y_col],
+#             mode="markers",
+#             marker=dict(
+#                 size=7,
+#                 color="#c2185b",
+#                 opacity=0.8
+#             ),
+#             showlegend=False
+#         ))
 
-        fig_box_swarm.update_layout(
-            title=title,
-            margin=dict(t=30, b=10),
-            boxmode="overlay",
-            yaxis = dict(title = "Years"),
-            xaxis = dict(title = " ")
-        )
+#         fig_box_swarm.update_layout(
+#             title=title,
+#             margin=dict(t=30, b=10),
+#             boxmode="overlay",
+#             yaxis = dict(title = "Years"),
+#             xaxis = dict(title = " ")
+#         )
 
-        st.plotly_chart(fig_box_swarm, use_container_width=True)
-st.divider()
+#         st.plotly_chart(fig_box_swarm, use_container_width=True)
+
 
 
 

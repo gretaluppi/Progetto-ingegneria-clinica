@@ -57,7 +57,7 @@ df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
 df_pd = pd.read_csv("PD.csv", sep="," , header=1)
 
 # IMPOSTAZIONE PAGINA
-st.title("🔍 Search and Open Files")
+st.title("Search and Open Files")
 
 #RICERCA PER ID PAZIENTE E APERTURA FILE
 if "show_filters" not in st.session_state:
