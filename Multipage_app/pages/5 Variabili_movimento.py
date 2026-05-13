@@ -4,25 +4,23 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+#lettura dei due file csv 
+df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
+df_pd = pd.read_csv("PD.csv", sep="," , header=1)
+
 st.title("Movements metrics")
 st.divider()
 
-st.sidebar.subheader("📂 Dataset")
-scelta_gruppo = st.sidebar.radio(
-    "Show:",
-    options=["SelfPace", "HurriedPace"],
-    index=0
-)
-
-if scelta_gruppo == "PD":
-    df_nuovo=df_pd
-elif scelta_gruppo == "Control":
-    df_nuovo= df_control
-else:
-    df_nuovo= df_totale
+st.subheader("Selfpace")
 
 
 
+
+st.subheader("Hurriedpace")
+
+
+
+#st.line_chart(data=None, *, x=None, y=None, x_label=None, y_label=None, color=None, width="stretch", height="content", use_container_width=None)
 
 if "Test" in scelta_parametri:
         syn = synapseclient.Synapse()
