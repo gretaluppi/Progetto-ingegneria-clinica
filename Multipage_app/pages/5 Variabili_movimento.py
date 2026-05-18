@@ -1,0 +1,1 @@
+#st.set_page_config(page_title="Variabili Movimento", page_icon="👟", layout="wide")
