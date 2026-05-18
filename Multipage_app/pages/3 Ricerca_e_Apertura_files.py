@@ -2,6 +2,9 @@ import synapseclient
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
+st.set_page_config(page_title="Ricerca e apertura files", page_icon="🔍", layout="wide")
+
 # LOGIN
 def token(nome):
     file_token=pd.read_csv("TOKEN.csv")
