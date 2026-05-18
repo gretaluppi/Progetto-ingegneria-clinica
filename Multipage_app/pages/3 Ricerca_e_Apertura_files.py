@@ -61,6 +61,7 @@ df_pd = pd.read_csv("PD.csv", sep="," , header=1)
 
 # IMPOSTAZIONE PAGINA
 st.title("Search and Open Files")
+st.info("If you do not want to search for files using search criteria, enter the patient ID in the designated field to view all files available in the dataset for that patient.")  
 
 #RICERCA PER ID PAZIENTE E APERTURA FILE
 if "show_filters" not in st.session_state:
@@ -80,7 +81,6 @@ if not st.session_state.show_filters:
     folder_file="syn61370558"
     files=list(syn.getChildren(folder_file))
     paziente=[child['name'] for child in files]
-    st.info("If you do not want to search for files using search criteria, enter the patient ID in the designated field to view all files available in the dataset for that patient.")  
     codice_persona=st.sidebar.text_input("Patient ID", placeholder="es: NLS456")
     if codice_persona:
         file_scelti = [] # 1. Crei una lista vuota
