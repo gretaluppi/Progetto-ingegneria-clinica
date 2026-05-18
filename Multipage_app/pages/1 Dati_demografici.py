@@ -10,10 +10,10 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.error("⚠️ Please log in from the Homepage.")
     st.stop()
 
-# Sidebar
-st.sidebar.title("🧠 PDAI")
-st.sidebar.markdown("**Parkinsonian Data Analysis Interface**")
-st.sidebar.divider()
+# # Sidebar
+# st.sidebar.title("🧠 PDAI")
+# st.sidebar.markdown("**Parkinsonian Data Analysis Interface**")
+# st.sidebar.divider()
 
 # Dati
 df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
