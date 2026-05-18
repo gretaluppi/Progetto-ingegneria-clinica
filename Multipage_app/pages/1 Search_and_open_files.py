@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-st.set_page_config(page_title="Ricerca e apertura files", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="Search and Open Files", page_icon="🔍", layout="wide")
 
 # LOGIN
 def token(nome):
@@ -67,22 +67,27 @@ st.info("If you do not want to search for files using search criteria, enter the
 if "show_filters" not in st.session_state:
     st.session_state.show_filters = False
 
+if "search_by_id" not in st.session_state:
+    st.session_state.search_by_id = False
+
 if st.sidebar.button("Search by criteria"):
     st.session_state.show_filters = True
+    st.session_state.search_by_id = False
     st.rerun()
 
 if st.sidebar.button("Patient ID search"):
     st.session_state.show_filters = False
+    st.session_state.search_by_id = True
     st.rerun()
-
-if not st.session_state.show_filters:
-    syn = synapseclient.Synapse()
-    syn.login(authToken=st.session_state.auth_token)
-    folder_file="syn61370558"
-    files=list(syn.getChildren(folder_file))
-    paziente=[child['name'] for child in files]
+    
+if st.session_state.search_by_id:
     codice_persona=st.sidebar.text_input("Patient ID", placeholder="es: NLS456")
     if codice_persona:
+        syn = synapseclient.Synapse()
+        syn.login(authToken=st.session_state.auth_token)
+        folder_file="syn61370558"
+        files=list(syn.getChildren(folder_file))
+        paziente=[child['name'] for child in files]
         file_scelti = [] # 1. Crei una lista vuota
         for f in paziente: # 2. Cicli su ogni nome file
             if codice_persona in f: # 3. Controlli se il codice è presente

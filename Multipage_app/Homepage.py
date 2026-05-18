@@ -68,14 +68,14 @@ with col1:
         st.subheader("👤 Demographics")
         st.write("View general patient information: ID, age, gender, and other personal details.")
         if st.button("Visit section →", key="btn_demo", use_container_width=True, type="primary"):
-            st.switch_page("pages/1 Dati_demografici.py")
+            st.switch_page("pages/2 Demographic_data.py")
 
 with col2:
     with st.container(border=True):
         st.subheader("📊 Statistics")
         st.write("View descriptive statistics, means, standard deviations, and comparisons between variables.")
         if st.button("Visit section →", key="btn_stat", use_container_width=True, type="primary"):
-            st.switch_page("pages/2 Dati_statistici.py")
+            st.switch_page("pages/3 Statistical_data.py")
 
 st.divider()
 
@@ -87,14 +87,14 @@ with col3:
         st.subheader("🔎 Research & Open Files")
         st.write("Explore the dataset and access files through parameter-based search.")
         if st.button("Visit section →", key="btn_dataset", use_container_width=True, type="primary"):
-            st.switch_page("pages/3 Ricerca_e_Apertura_files.py")
+            st.switch_page("pages/1 Search_and_open_files.py")
 
 with col4:
     with st.container(border=True):
         st.subheader("🩺 Clinical metrics")
         st.write("Analyze the clinical variables of patients, including scores and indicators related to the UPDRS scale.")
         if st.button("Visit section →", key="btn_clin", use_container_width=True, type="primary"):
-            st.switch_page("pages/4 Variabili_cliniche.py")
+            st.switch_page("pages/4 Clinical_variables.py")
 
 st.divider()
 
@@ -106,7 +106,7 @@ with col5:
         st.subheader("🚶 Movements metrics")
         st.write("Analyze the variables related to movement, posture, and motor characteristics of patients.")
         if st.button("Visit section →", key="btn_mov", use_container_width=True, type="primary"):
-            st.switch_page("pages/5 Variabili_movimento.py")
+            st.switch_page("pages/5 Motion_variables.py")
 
 with col6:
     with st.container(border=True):
