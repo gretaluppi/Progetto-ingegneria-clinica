@@ -45,11 +45,10 @@ scelta_gruppo = st.sidebar.radio(
     index=None
 )
 
-#1. grafico del CoP del paziente i in balance con occhi aperti vs chiusi
-if scelta_gruppo == "One specific patient":
-    st.subheader("Patient Balance: CoP Comparison (Eyes Open vs. Closed)")
-    codice_paziente=st.text_input("Enter patient ID:", placeholder="es: NLS456")
+tab1, tab2, tab3 = st.tabs("One specific patient", "Two specific patients", "General trend PD vs. CONTROLS")
 
+with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs chiusi
+    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
     if codice_paziente:
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
@@ -90,7 +89,11 @@ if scelta_gruppo == "One specific patient":
             else:
                 st.error("ID not found for the selected patient.")
 
+with tab2:
+    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
 
+with tab3:
+    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
 
 
 
