@@ -36,19 +36,13 @@ def login():
 
 st.title("Movements metrics")
 st.divider()
-st.write("TESTO DA SCRIVERE ...")
+st.write("TESTO ANCORA DA SCRIVERE ...")
 
-# seleziona dalla sidebar la tipologia di grafico da mostrare
-scelta_gruppo = st.sidebar.radio(
-    "Choose one option:",
-    options=["One specific patient", "Two specific patients", "General trend PD vs. CONTROLS"], 
-    index=None
-)
-
-tab1, tab2, tab3 = st.tabs("One specific patient", "Two specific patients", "General trend PD vs. CONTROLS")
+tab1, tab2, tab3 = st.tabs(["One specific patient", "Two specific patients", "General trend PD vs. CONTROLS"])
 
 with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs chiusi
-    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
+    st.subheader("Patient Balance: CoP comparison (Eyes Open vs. Eyes Closed)")
+    codice_paziente = st.text_input("Enter patient ID:", placeholder = "es: NLS456", key = "paziente_1")
     if codice_paziente:
         syn = synapseclient.Synapse()
         syn.login(authToken=st.session_state.auth_token)
@@ -90,10 +84,13 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                 st.error("ID not found for the selected patient.")
 
 with tab2:
-    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
+    st.subheader("Comparison between two patients CoP")
+    codice_paziente_A = st.text_input("Enter patient one ID:", placeholder="es: NLS456", key="paziente_2A")
+    codice_paziente_B = st.text_input("Enter patient two ID:", placeholder="es: NLS456", key="paziente_2B")
 
 with tab3:
-    codice_paziente = st.text_input("Enter patient ID:", placeholder="es: NLS456")
+    st.subheader("PD vs. CONTROLS CoP (General Trend)")
+    
 
 
 
