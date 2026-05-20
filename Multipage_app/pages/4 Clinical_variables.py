@@ -44,14 +44,12 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("UPDRS-Sex Distribution")
-        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", hover_data=["Subject ID", "Age (years)"], title = "")
+        color_map = {"Male": "#4A90D9", "Female": "#E8729A"}
+        fig_sesso_updrs = px.strip(df_pd, x="Sex", y="UPDRS", color = "Sex", color_discrete_map = color_map, hover_data=["Subject ID", "Age (years)"], title = "")
         fig_sesso_updrs.update_layout(xaxis_title="Sex", yaxis_title="UPDRS value", showlegend = False)
         st.plotly_chart(fig_sesso_updrs) 
 
     with col2:
-        # fig_eta_updrs= px.strip(df_pd, x="Age (years)", y="UPDRS", color = "Age (years)", hover_data=["Subject ID", "Sex"], title = "UPDRS-Age Distribution")
-        # fig_eta_updrs.update_layout(xaxis_title="Age", yaxis_title="UPDRS value", showlegend = False)
-        # st.plotly_chart(fig_eta_updrs)
         st.subheader("Years since PD diagnosis")
         df_male = df_pd[df_pd["Gender"] == "Male"]
         df_female = df_pd[df_pd["Gender"] == "Female"]
