@@ -139,7 +139,7 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                         df_paz2 = pd.read_csv(entità_2.path, sep=",")
                         st.session_state.df_selezionato = df_paz2 # Salviamo il dataframe in session_state per i grafici
                         st.session_state.paziente_corrente = balance_2
-                        #st.success("OK")
+                        
 
                         #calcolo UPDRS per capire chi tra i 2 pazienti è più grave
                         df_pd = pd.read_csv("PD.csv", sep="," , header=1)
@@ -153,8 +153,7 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                             if UPDRS >=0:
                                 df_pd.at[i,"UPDRS"] = UPDRS
                         
-                        # Estraiamo direttamente il valore. Se non esiste, usiamo "N/A" come fallback.
-                        val_updrs1 = df_pd.loc[df_pd["Subject ID"] == codice_paz1, "UPDRS"].to_list() or ["N/A"]
+                        val_updrs1 = df_pd.loc[df_pd["Subject ID"] == codice_paz1, "UPDRS"].to_list() or ["N/A"]  # estraiamo direttamente il valore, se non esiste usiamo "N/A" come fallback.
                         val_updrs2 = df_pd.loc[df_pd["Subject ID"] == codice_paz2, "UPDRS"].to_list() or ["N/A"]
                         val_updrs1 = val_updrs1[0]
                         val_updrs2 = val_updrs2[0]
@@ -184,16 +183,209 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                     st.error("ID not found for the selected patient.")
 
 with tab2:
-    st.subheader("PD vs. CONTROLS CoP (General Trend)")
+    # st.subheader("PD vs. CONTROLS CoP (General Trend)")
+    # syn = synapseclient.Synapse()
+    # syn.login(authToken=st.session_state.auth_token)
+    # PD_mov = 'syn61370558'
+    # #CON_mov = 'syn61370552'
+
+
+    # with st.spinner("Elaborazione e calcolo delle medie di tutti i pazienti..."):
+    #     all_files_PD = list(syn.getChildren(PD_mov)) #1.Prende TUTTI i file presenti nella cartella Synapse
+    #     #all_files_CON = list(syn.getChildren(CON_mov))
+    
+    #     PD_dict = {}             # raggruppiamo i file per paziente. primi 6 caratteri = ID
+    #     for f in all_files_PD:
+    #         nome_file_PD = f['name']
+    #         PD_id = nome_file_PD[:6] 
+    #         if PD_id not in PD_dict:
+    #             PD_dict[PD_id] = []
+    #         PD_dict[PD_id].append(f)
+    
+    #     lista_PD = [] #liste in cui salveremo i dati filtrati di ogni singolo paziente
+    #     pazienti_selezionati = list(PD_dict.items())[:20]
+    #     for p_id, files_PD in PD_dict.items(): # cicliamo su ogni paziente trovato nel database
+    #     #     # Ordiniamo i file del paziente alfabeticamente o per nome per garantire l'ordine corretto
+    #     #     files_PD = sorted(files_PD, key=lambda x: x['name'])
+        
+    #         # Verifichiamo che il paziente abbia almeno 4 prove per poter prendere la quarta (SelfPace)
+    #         if len(files_PD) >= 4:
+    #             selfpace_PD = files_PD[3] # Indice 3 = Quarto file (SelfPace)
+            
+    #             # Scarichiamo il file da Synapse
+    #             entità_PD = syn.get(selfpace_PD['id'])
+    #             df_singolo_PD = pd.read_csv(entità_PD.path, sep=",")
+            
+    #             # Teniamo solo Time e le colonne LowerBack_Acc
+    #             colonne_acc_PD = ["Time"] + [col for col in df_singolo_PD.columns if "LowerBack_FreeAcc_N" in col]
+    #             df_filtrato_PD = df_singolo_PD[colonne_acc_PD].copy()
+            
+    #             # Arrotondiamo il tempo al primo decimale per poter allineare e fare la media tra pazienti diversi
+    #             #df_filtrato_PD["Time"] = df_filtrato["Time"].round(1)
+            
+    #             lista_PD.append(df_filtrato_PD)
+
+    # if lista_PD: # calcolo della MEDIA di tutti i pazienti
+    #     df_tutti_PD = pd.concat(lista_PD, ignore_index=True)  # Uniamo tutti i dataframe usando la colonna "Time" come punto di incontro
+    #     df_medie_PD = df_tutti_PD.groupby("Time").mean().reset_index() # Raggruppiamo per l'istante di tempo e calcoliamo la media delle accelerazioni
+    #     st.success(f"Elaborati con successo {len(lista_PD)} pazienti!")
+        
+    #    # 1. Calcola l'intervallo di tempo tra un punto e l'altro
+    #     df_medie_PD["delta_t"] = df_medie_PD["Time"].diff().fillna(0)
+
+    #     # 2. Prima integrazione: Accelerazione -> Velocità (m/s)
+    #     df_medie_PD["velocita"] = (df_medie_PD["LowerBack_FreeAcc_N"] * df_medie_PD["delta_t"]).cumsum()
+
+    #     # 3. Seconda integrazione: Velocità -> Posizione / Spazio percorso (m)
+    #     df_medie_PD["Position"] = (df_medie_PD["velocita"] * df_medie_PD["delta_t"]).cumsum()
+    # else:
+    #     st.error("Nessun paziente ha abbastanza file per estrarre la prova SelfPace.")
+
+    # df_dinamico = df_medie_PD.sort_values("Time").reset_index(drop=True)
+    
+    # fig = go.Figure()
+    # # Aggiungiamo la linea che si animerà nel tempo
+    # fig.add_trace(go.Scatter(
+    #     x=df_dinamico["Time"], 
+    #     y=df_dinamico["Position"],
+    #     mode="lines+markers",
+    #     name=" ",
+    #     line=dict(width=2),
+    #     marker=dict(size=6)
+    # ))
+
+    # # Definiamo i "Frames" dell'animazione (fanno vedere i dati un secondo alla volta)
+    # frames = []
+    # for i in range(1, len(df_dinamico), 5): # Saltiamo di 5 in 5 per renderlo più fluido e leggero
+    #     frames.append(go.Frame(
+    #         data=[go.Scatter(
+    #             x=df_dinamico["Time"].iloc[:i],     # Mostra il tempo dall'inizio fino all'istante i
+    #             y=df_dinamico["Position"].iloc[:i] # Mostra la posizione dall'inizio fino all'istante i
+    #         )],
+    #         name=str(df_dinamico["Time"].iloc[i])
+    #     ))
+
+    # fig.frames = frames
+
+    # # 4. Configura i pulsanti PLAY e PAUSE nell'interfaccia di Plotly
+    # fig.update_layout(
+    #     title="Real-Time 2D Space-Time Plot (Resultant Distance)",
+    #     xaxis=dict(range=[df_dinamico["Time"].min(), df_dinamico["Time"].max()], title="Time (seconds)"),
+    #     yaxis=dict(range=[df_dinamico["Posizione"].min() - 2, df_dinamico["Posizione"].max() + 2], title="Displacement (mm)"),
+    #     updatemenus=[dict(
+    #         type="buttons",
+    #         showactive=False,
+    #         buttons=[
+    #             dict(label="Play",
+    #                 method="animate",
+    #                 args=[None, dict(frame=dict(duration=20, redraw=False), fromcurrent=True)]),
+    #             dict(label="Pause",
+    #                 method="animate",
+    #                 args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate")])
+    #         ]
+    #     )]
+    # )
+    # st.plotly_chart(fig)
     
 
-#  codice_paz_PD = st.text_input("Enter PD patient ID:", placeholder = "es: NLS456")
-#         codice_paz_CON = st.text_input("Enter CONTROL patient ID:", placeholder = "es: HC123")
-#         if codice_paz_PD and codice_paz_CON:
-#             syn = synapseclient.Synapse()
-#             syn.login(authToken=st.session_state.auth_token)
-#             PD_mov = 'syn61370558'
-#             CON_mov = 'syn61370552'
+
+
+
+    st.subheader("PD vs. CONTROLS CoP (General Trend)")
+    syn = synapseclient.Synapse()
+    syn.login(authToken=st.session_state.auth_token)
+    PD_mov = 'syn61370558'
+
+    with st.spinner("Elaborazione e calcolo delle medie dei primi 20 pazienti..."):
+        all_files_PD = list(syn.getChildren(PD_mov)) 
+        
+        PD_dict = {}             
+        for f in all_files_PD:
+            nome_file_PD = f['name']
+            PD_id = nome_file_PD[:6] 
+            if PD_id not in PD_dict:
+                PD_dict[PD_id] = []
+            PD_dict[PD_id].append(f)
+        
+        lista_PD = [] 
+
+        # --- MODIFICA CORREZIONE: LIMITIAMO A 20 PAZIENTI ---
+        pazienti_selezionati = list(PD_dict.items())[:20]  # Prende solo i primi 20 pazienti dal dizionario
+
+        for p_id, files_PD in pazienti_selezionati: 
+            # Ordiniamo i file per sicurezza in modo che l'indice [3] sia stabile
+            files_PD = sorted(files_PD, key=lambda x: x['name'])
+        
+            if len(files_PD) >= 4:
+                selfpace_PD = files_PD[3] 
+            
+                entità_PD = syn.get(selfpace_PD['id'])
+                df_singolo_PD = pd.read_csv(entità_PD.path, sep=",")
+            
+                colonne_acc_PD = ["Time"] + [col for col in df_singolo_PD.columns if "LowerBack_FreeAcc_N" in col]
+                df_filtrato_PD = df_singolo_PD[colonne_acc_PD].copy()
+            
+                # CORREZIONE 1: Scommentato e corretto il nome della variabile (df_filtrato_PD invece di df_filtrato)
+                # Altrimenti la media su "Time" salta perché i millisecondi non combaciano perfettamente
+                df_filtrato_PD["Time"] = df_filtrato_PD["Time"].round(1)
+            
+                lista_PD.append(df_filtrato_PD)
+
+    if lista_PD: 
+        df_tutti_PD = pd.concat(lista_PD, ignore_index=True)  
+        df_medie_PD = df_tutti_PD.groupby("Time").mean().reset_index() 
+        st.success(f"Elaborati con successo {len(lista_PD)} pazienti!")
+        
+        df_medie_PD["delta_t"] = df_medie_PD["Time"].diff().fillna(0)
+        df_medie_PD["velocita"] = (df_medie_PD["LowerBack_FreeAcc_N"] * df_medie_PD["delta_t"]).cumsum()
+        df_medie_PD["Position"] = (df_medie_PD["velocita"] * df_medie_PD["delta_t"]).cumsum()
+    else:
+        st.error("Nessun paziente ha abbastanza file per estrarre la prova SelfPace.")
+        st.stop() # Blocca l'esecuzione se la lista è vuota
+
+    df_dinamico = df_medie_PD.sort_values("Time").reset_index(drop=True)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df_dinamico["Time"], 
+        y=df_dinamico["Position"],
+        mode="lines+markers",
+        name=" ",
+        line=dict(width=2),
+        marker=dict(size=6)
+    ))
+
+    frames = []
+    for i in range(1, len(df_dinamico), 5): 
+        frames.append(go.Frame(
+            data=[go.Scatter(
+                x=df_dinamico["Time"].iloc[:i],     
+                y=df_dinamico["Position"].iloc[:i] 
+            )],
+            name=str(df_dinamico["Time"].iloc[i])
+        ))
+
+    fig.frames = frames
+
+    fig.update_layout(
+        title="Real-Time 2D Space-Time Plot (Resultant Distance)",
+        xaxis=dict(range=[df_dinamico["Time"].min(), df_dinamico["Time"].max()], title="Time (seconds)"),
+        # CORREZIONE 2: Qui avevi scritto df_dinamico["Posizione"], ma la colonna si chiama "Position" con la 't'
+        yaxis=dict(range=[df_dinamico["Position"].min() - 0.5, df_dinamico["Position"].max() + 0.5], title="Displacement (m)"),
+        updatemenus=[dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(label="Play",
+                    method="animate",
+                    args=[None, dict(frame=dict(duration=20, redraw=False), fromcurrent=True)]),
+                dict(label="Pause",
+                    method="animate",
+                    args=[[None], dict(frame=dict(duration=0, redraw=False), mode="immediate")])
+            ]
+        )]
+    )
+    st.plotly_chart(fig)
 
 #             with st.spinner("Processing..."):
 #                 files_PD = list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella
