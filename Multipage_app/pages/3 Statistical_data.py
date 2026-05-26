@@ -3,7 +3,12 @@
 # import plotly.express as px
 # from scipy.stats import ttest_ind
 
-# st.set_page_config(page_title="Analisi Statistica", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Analisi Statistica", page_icon="📊", layout="wide")
+
+# LOGIN CHECK
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.error("⚠️ Please log in from the Homepage.")
+    st.stop()
 
 # st.title("📊 Analisi Statistica")
 # st.markdown("""

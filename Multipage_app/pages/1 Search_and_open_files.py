@@ -5,31 +5,11 @@ import plotly.express as px
 
 st.set_page_config(page_title="Search and Open Files", page_icon="🔍", layout="wide")
 
-# LOGIN
-def token(nome):
-    file_token=pd.read_csv("TOKEN.csv")
-    for i,row in file_token.iterrows():
-        if row["Name"]==nome.lower():
-            token_finale=row["Token"]
-            st.success("Login successful.")
-            return token_finale,True
-    token_finale="No valid token found, please try again."
-    return token_finale,False
-        
-def login(): 
-    st.title("Login")
-    codice_persona=st.text_input("Enter your user ID", placeholder="es: Francesca")
-    if st.button("Login"):
-        tf,result=token(codice_persona)
-        if result:
-            syn = synapseclient.Synapse()
-            syn.login(authToken=tf)
-            st.session_state.logged_in = True
-            st.session_state.auth_token=tf
-            st.success("Login successful.")
-            st.rerun()
-        else: 
-            st.error(tf)
+# LOGIN CHECK
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.error("⚠️ Please log in from the Homepage.")
+    st.stop()
+
 
 #funzione per calcolare l'UPDRS
 def calcolo_UPDRS(lis1,lis2,lis3,lis4):

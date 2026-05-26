@@ -1,5 +1,3 @@
-#st.set_page_config(page_title="Variabili Movimento", page_icon="👟", layout="wide")
-
 import synapseclient
 import streamlit as st
 import pandas as pd
@@ -7,48 +5,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import synapseutils
 
+st.set_page_config(page_title="Variabili Movimento", page_icon="👟", layout="wide")
 
-# LOGIN
-def token(nome):
-    file_token=pd.read_csv("TOKEN.csv")
-    for i,row in file_token.iterrows():
-        if row["Name"]==nome.lower():
-            token_finale=row["Token"]
-            st.success("Login successful.")
-            return token_finale,True
-    token_finale="No valid token found, please try again."
-    return token_finale,False
-        
-def login(): 
-    st.title("Login")
-    codice_persona=st.text_input("Enter your user ID", placeholder="es: Francesca")
-    if st.button("Login"):
-        tf,result=token(codice_persona)
-        if result:
-            syn = synapseclient.Synapse()
-            syn.login(authToken=tf)
-            st.session_state.logged_in = True
-            st.session_state.auth_token=tf
-            st.success("Login successful.")
-            st.rerun()
-        else: 
-            st.error(tf)
-#UPDRS
-def calcolo_UPDRS(lis1,lis2,lis3,lis4):
-        somma_finale=0
-        Lista1_num = pd.to_numeric(pd.Series(lis1), errors="coerce")
-        Lista2_num = pd.to_numeric(pd.Series(lis2), errors="coerce")
-        Lista3_num = pd.to_numeric(pd.Series(lis3), errors="coerce")
-        Lista4_num = pd.to_numeric(pd.Series(lis4), errors="coerce")
-        if not (Lista1_num.isna().any() or Lista2_num.isna().any() or Lista3_num.isna().any() or Lista4_num.isna().any()):
-            Parte1 = sum(Lista1_num)
-            Parte2 = sum(Lista2_num)
-            Parte3 = sum(Lista3_num)
-            Parte4 = sum(Lista4_num)
-            somma_finale = Parte1 + Parte2 + Parte3 + Parte4
-        else:
-            somma_finale=-1
-        return somma_finale
+# LOGIN CHECK
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.error("⚠️ Please log in from the Homepage.")
+    st.stop()
 
 st.title("Movements metrics")
 st.divider()
