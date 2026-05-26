@@ -14,45 +14,64 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
 
 st.title("Movements metrics")
 st.divider()
+def calcolo_UPDRS(lis1,lis2,lis3,lis4):
+    somma_finale=0
+    Lista1_num = pd.to_numeric(pd.Series(Lista1), errors="coerce")
+    Lista2_num = pd.to_numeric(pd.Series(Lista2), errors="coerce")
+    Lista3_num = pd.to_numeric(pd.Series(Lista3), errors="coerce")
+    Lista4_num = pd.to_numeric(pd.Series(Lista4), errors="coerce")
+    if not (Lista1_num.isna().any() or Lista2_num.isna().any() or Lista3_num.isna().any() or Lista4_num.isna().any()):
+        Parte1 = sum(Lista1_num)
+        Parte2 = sum(Lista2_num)
+        Parte3 = sum(Lista3_num)
+        Parte4 = sum(Lista4_num)
+        somma_finale = Parte1 + Parte2 + Parte3 + Parte4
+    else:
+        somma_finale=-1
+    return somma_finale
 
 tab1, tab2 = st.tabs(["Balance", "Selfpace"])
+syn = synapseclient.Synapse()
+syn.login(authToken=st.session_state.auth_token)
+PD_mov = 'syn61370558'
 with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs chiusi
-    opzioni = st.radio(
-    "**Choose one option:**",
-    options=["One specific patient", "Two specific patients"],
-    index=0
-    )
+    opzioni = st.radio("**Choose one option:**",options=["One specific patient", "Two specific patients"],index=0)
     if opzioni == "One specific patient":
         codice_paziente = st.text_input("Enter PD patient ID:", placeholder = "es: NLS456")
         if codice_paziente:
-            syn = synapseclient.Synapse()
-            syn.login(authToken=st.session_state.auth_token)
-            PD_mov = 'syn61370558'
-        
             with st.spinner("Processing..."):
-                files = list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella
+                files = list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella direttamente da synaps
                 paziente = [child['name'] for child in files]
                 file_scelti = [f for f in paziente if codice_paziente in f] # Filtra i file che contengono l'ID inserito
    
                 if file_scelti:
-                    balance_file = file_scelti[0] # prendiamo solo il primo file trovato per quel paziente = balance
-                    match = [c['id'] for c in files if c['name'] == balance_file]  #cerchiamo il rispettivo ID Synapse per il download
+                    for element in file_scelti: 
+                        if "Balance" in element['name']:
+                            balance_file = element['name'] # prendiamo solo il primo file trovato per quel paziente = balance
+                    match = [c['id'] for c in files if c['name'] == balance_file]  # mi crea una lista di ID dei file su synapse, li userò per ricostruire il percorso da fare per arrivare al file che mi serve
                     if match: 
-                        file_id = match[0] 
-                        entità = syn.get(file_id) # syn.get serve a "leggere" il file per aprirlo in Pandas
-                        df_paziente = pd.read_csv(entità.path, sep=",")
+                        entità = syn.get(match[0]) # syn.get serve a "leggere" il file per aprirlo in Pandas
+                                                    # scrivo match[0] perchè la funzione syn.get necessita di una stringa in ingresso e match è una lista di stringhe
+                                                    # che normalmente dovrebbe contenere solamente un valore
+                        df_paziente = pd.read_csv(entità.path, sep=",") # vado a leggere il file che ha l'ID che ho trovato
                         st.session_state.df_selezionato = df_paziente # Salviamo il dataframe in session_state per i grafici
-                        st.session_state.paziente_corrente = balance_file
-
+                        st.session_state.paziente_corrente = balance_file # uso session.state per permettermi di usare questa variabile anche in altri pannlli/in altre circostanze all'interno dello stesso pannello (titoli o scritte)
                         st.subheader("Patient Balance: CoP comparison (Eyes Open vs. Eyes Closed)")
-                        df_valido = df_paziente [df_paziente ["GeneralEvent"] != "unlabeled"]
+                        eo=[]
+                        ec=[]
+                        for i,row in df_paziente.iterrows(): 
+                            if row["GeneralEvent"] != "unlabeled":
+                                if row["GeneralEvent"]=="EC_FeetShoWidth": 
+                                    ec.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                                if row["GeneralEvent"]=="EO_FeetShoWidth":
+                                    eo.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                        df_EO=pd.DataFrame(eo)
+                        df_EC=pd.DataFrame(ec)
                         #occhi aperti
-                        df_EO = df_valido[df_valido["GeneralEvent"] == "EO_FeetShoWidth"]
                         df_EO = df_EO.copy()  #usiamo .copy() per evitare il Warning di Pandas quando creiamo nuove colonne
                         df_EO["ML"] = (df_EO["RCoP_X"] + df_EO["LCoP_X"]) / 2
                         df_EO["AP"] = (df_EO["RCoP_Y"] + df_EO["LCoP_Y"]) / 2
                         #occhi chiusi
-                        df_EC = df_valido[df_valido["GeneralEvent"] == "EC_FeetShoWidth"]
                         df_EC = df_EC.copy()
                         df_EC["ML"] = (df_EC["RCoP_X"] + df_EC["LCoP_X"]) / 2
                         df_EC["AP"] = (df_EC["RCoP_Y"] + df_EC["LCoP_Y"]) / 2
@@ -67,40 +86,36 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
         codice_paz1= st.text_input("Enter PD patient one ID:", placeholder = "es: NLS456")
         codice_paz2 = st.text_input("Enter PD patient two ID:", placeholder = "es: NLS456")
         if codice_paz1 and codice_paz2:
-            syn = synapseclient.Synapse()
-            syn.login(authToken=st.session_state.auth_token)
-            PD_mov = 'syn61370558'
-
             with st.spinner("Processing..."):
-                files_1 = list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella
-                paz_1 = [child['name'] for child in files_1]
-                file_scelti_1 = [f for f in paz_1 if codice_paz1 in f] # Filtra i file che contengono l'ID inserito
-                
-                files_2 = list(syn.getChildren(PD_mov))
-                paz_2 = [child['name'] for child in files_2]
-                file_scelti_2 = [f for f in paz_2 if codice_paz2 in f] 
+                files= list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella
+                paz= [child['name'] for child in files] #prende i nomi di tutti i pazienti
+                file_scelti_1 = [f for f in paz if codice_paz1 in f] # Filtra i file che contengono l'ID inserit
+                file_scelti_2 = [f for f in paz if codice_paz2 in f] 
 
                 if file_scelti_1 and file_scelti_2:
-                    balance_1 = file_scelti_1[0] # prendiamo solo il primo file trovato per quel paziente = balance
-                    match_1 = [c['id'] for c in files_1 if c['name'] == balance_1]  #cerchiamo il rispettivo ID Synapse per il download
-                    
-                    balance_2 = file_scelti_2[0] 
-                    match_2 = [c['id'] for c in files_2 if c['name'] == balance_2] 
+                    for element in file_scelti_1: 
+                        if "Balance" in element['name']:
+                            balance_1 = element['name'] # prendiamo solo il primo file trovato per quel paziente = balance
+                    match_1 = [c['id'] for c in files if c['name'] == balance_1]  #cerchiamo il rispettivo ID Synapse per il download
+                    for element in file_scelti_2: 
+                        if "Balance" in element['name']:
+                            balance_2 = element['name'] 
+                    match_2 = [c['id'] for c in files if c['name'] == balance_2] 
 
-                    if match_1 and match_2: 
-                        file_1id = match_1[0] 
-                        entità_1= syn.get(file_1id) # syn.get serve a "leggere" il file per aprirlo in Pandas
+                    if match_1 and match_2:  
+                        entità_1= syn.get(match_1[0]) # syn.get serve a "leggere" il file per aprirlo in Pandas
                         df_paz1 = pd.read_csv(entità_1.path, sep=",")
                         st.session_state.df_selezionato = df_paz1 # Salviamo il dataframe in session_state per i grafici
                         st.session_state.paziente_corrente = balance_1
 
-                        file_2id = match_2[0] 
-                        entità_2= syn.get(file_2id) # syn.get serve a "leggere" il file per aprirlo in Pandas
+                        entità_2= syn.get(match_2[0]) # syn.get serve a "leggere" il file per aprirlo in Pandas
                         df_paz2 = pd.read_csv(entità_2.path, sep=",")
                         st.session_state.df_selezionato = df_paz2 # Salviamo il dataframe in session_state per i grafici
                         st.session_state.paziente_corrente = balance_2
                         
+                        #riprendi d qui#
 
+                        
                         #calcolo UPDRS per capire chi tra i 2 pazienti è più grave
                         df_pd = pd.read_csv("PD.csv", sep="," , header=1)
                         df_pd["UPDRS"] = None
