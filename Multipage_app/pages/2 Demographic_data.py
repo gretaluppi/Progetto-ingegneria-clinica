@@ -45,21 +45,16 @@ elif scelta_gruppo == "Control":
 else:
     df_nuovo= df_totale
 
-# FILTERS
-# st.sidebar.divider()
-# st.sidebar.subheader("🔍 Filters:")
-
-#INSERIRE I FILTRI
-
 # MAPPA COLORE
 color_map = {"Male": "#4A90D9", "Female": "#E8729A"}
 
 # Valori barra
-#st.subheader("📋 Summary")
-#col1, col2, col3 = st.columns(3)
-#col1.metric("Pazienti", len(df))
-#col2.metric("Età media", f"{df['Age'].mean():.1f} yrs")
-#col3.metric("Maschi / Femmine", f"{(df['Gender']=='Maschi').sum()} / {(df['Gender']=='Femmine').sum()}")
+col1, col2 = st.columns(2)
+col1.metric("Patients", "185")
+col2.metric("Avarage Age", "67")
+
+
+st.divider()
 
 # PRIMA RIGA
 col1, col2 = st.columns(2)
