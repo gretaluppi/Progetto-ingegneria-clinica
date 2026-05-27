@@ -10,7 +10,6 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.error("⚠️ Please log in from the Homepage.")
     st.stop()
 
-
 #funzione per calcolare l'UPDRS
 def calcolo_UPDRS(lis1,lis2,lis3,lis4):
     somma_finale=0
@@ -28,12 +27,6 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
         somma_finale=-1
     return somma_finale
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    login()
-    st.stop()
 
 #lettura dei due file csv 
 df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)

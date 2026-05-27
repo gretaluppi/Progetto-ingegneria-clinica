@@ -10,10 +10,6 @@ if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.error("⚠️ Please log in from the Homepage.")
     st.stop()
 
-# # Sidebar
-# st.sidebar.title("🧠 PDAI")
-# st.sidebar.markdown("**Parkinsonian Data Analysis Interface**")
-# st.sidebar.divider()
 
 # Dati
 df_control = pd.read_csv("CONTROLS.csv", sep="," , header=1)
@@ -27,7 +23,7 @@ df_totale= pd.concat([df_pd, df_control], ignore_index = True) #unisce tutte le 
 
 # Titolo
 st.title("Demographics")
-# st.caption("Panoramica generale delle informazioni demografiche dei pazienti.")
+st.caption("General overview of patients’ demographic information.")
 st.divider()
 
 # Selezione gruppo
@@ -178,105 +174,3 @@ with col4:
     fig_altezza.update_layout(xaxis=dict(tick0=0, dtick=10)) # impostiamo la frequenza dei valori sull'asse X
     st.plotly_chart(fig_altezza, use_container_width=True)
 st.divider()
-
-# TERZA RIGA
-# col5, col6 = st.columns(2)
-
-# with col5:
-#     st.subheader("Race Distribution")
-#     df_white = df_nuovo[df_nuovo["Race"] == "White"]
-#     df_asian = df_nuovo[df_nuovo["Race"] == "Asian"]
-#     df_black = df_nuovo[df_nuovo["Race"] == "Black/African American"]
-#     df_race = pd.concat([df_white, df_asian, df_black], ignore_index = True)
-#     race_counts = pd.DataFrame({"Race" : ["White", "Asian", "Black/African American"], "Count" : [len(df_white), len(df_asian), len(df_black)]})
-#     fig_race = px.bar(race_counts, x="Count", y="Race", orientation="h", color="Race", color_discrete_sequence=px.colors.qualitative.Safe)
-#     fig_race.update_layout(margin=dict(t=10, b=10), showlegend=False)
-#     st.plotly_chart(fig_race, use_container_width=True)
-
-
-# with col6:
-#     if scelta_gruppo == "PD":
-#         st.subheader("Years since PD diagnosis")
-#         df_male = df_nuovo[df_nuovo["Gender"] == "Male"]
-#         df_female = df_nuovo[df_nuovo["Gender"] == "Female"]
-#         df_box = pd.concat([df_male, df_female], ignore_index = True)
-#         x_col = "Gender"
-#         y_col = "Years since PD diagnosis"
-#         color_col = "Gender"
-#         title = " "
-#         fig_box_swarm = go.Figure()
-
-#         # MALE BOX
-#         fig_box_swarm.add_trace(go.Box(
-#             x=["Male"] * len(df_male),
-#             y=df_male[y_col],
-#             name="Male",
-#             boxmean=True,
-#             line=dict(color="#4A90D9"),
-#             fillcolor="rgba(74,144,217,0.3)"
-#         ))
-
-#         # MALE SWARM
-#         fig_box_swarm.add_trace(go.Scatter(
-#             x=["Male"] * len(df_male),
-#             y=df_male[y_col],
-#             mode="markers",
-#             marker=dict(
-#                 size=7,
-#                 color="#1f5fbf",
-#                 opacity=0.8
-#             ),
-#             showlegend=False
-#         ))
-
-#         # FEMALE BOX
-#         fig_box_swarm.add_trace(go.Box(
-#             x=["Female"] * len(df_female),
-#             y=df_female[y_col],
-#             name="Female",
-#             boxmean=True,
-#             line=dict(color="#E8729A"),
-#             fillcolor="rgba(232,114,154,0.3)"
-#         ))
-
-#         # FEMALE SWARM
-#         fig_box_swarm.add_trace(go.Scatter(
-#             x=["Female"] * len(df_female),
-#             y=df_female[y_col],
-#             mode="markers",
-#             marker=dict(
-#                 size=7,
-#                 color="#c2185b",
-#                 opacity=0.8
-#             ),
-#             showlegend=False
-#         ))
-
-#         fig_box_swarm.update_layout(
-#             title=title,
-#             margin=dict(t=30, b=10),
-#             boxmode="overlay",
-#             yaxis = dict(title = "Years"),
-#             xaxis = dict(title = " ")
-#         )
-
-#         st.plotly_chart(fig_box_swarm, use_container_width=True)
-
-
-
-
-
-# TABELLA NASCOSTA
-#cols_to_show = ["Subject ID", "Age", "Gender", "Race", "Height (in)", "Weight (kg)"]
-
-# if scelta_gruppo == "PD Patients":
-#     cols_to_show.append("Years since PD diagnosis")
-
-# if scelta_gruppo == "All":
-#     cols_to_show.append("Group")
-
-# with st.expander("📄 Visualizza dati filtrati"):
-#     st.dataframe(
-#         df[cols_to_show].reset_index(drop=True),
-#         use_container_width=True
-#     )

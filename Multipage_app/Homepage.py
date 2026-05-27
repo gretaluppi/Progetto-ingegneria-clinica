@@ -91,7 +91,7 @@ with col3:
 
 with col4:
     with st.container(border=True):
-        st.subheader("🩺 Clinical metrics")
+        st.subheader("🩺 Clinical Variables")
         st.write("Analyze the clinical variables of patients, including scores and indicators related to the UPDRS scale.")
         if st.button("Visit section →", key="btn_clin", use_container_width=True, type="primary"):
             st.switch_page("pages/4 Clinical_variables.py")
@@ -103,7 +103,7 @@ col5, col6 = st.columns(2)
 
 with col5:
     with st.container(border=True):
-        st.subheader("🚶 Movements metrics")
+        st.subheader("🚶 Movements Variables")
         st.write("Analyze the variables related to movement, posture, and motor characteristics of patients.")
         if st.button("Visit section →", key="btn_mov", use_container_width=True, type="primary"):
             st.switch_page("pages/5 Motion_variables.py")
