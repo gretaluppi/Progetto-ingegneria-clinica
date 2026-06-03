@@ -30,6 +30,102 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
         somma_finale=-1
     return somma_finale
 
+def calcola_velocita_medie_gruppo(folder_id, max_pazienti=50):
+    all_files = list(syn.getChildren(folder_id))
+    file_selezionati=[]
+    paz = []
+    i=0 # lo uso per tenere traccia di quanti pazienti ho raccolto
+    for f in all_files:
+        if ("SelfPace" in f['name']) and ("_mat" not in f['name']) and (i<50):
+            p_id = f['name'][:6]
+            if p_id not in paz:
+                paz.add(p_id) #lo uso per controllare di non aver già preso il paziente
+                f['id']=p_id #aggiungo al dizionario con le info del file anche l'id del paziente
+                file_selezionati.append(f) #aggiungo alla lista contenente solo i file selezionati il nuvo dizionario contenente le info del file
+                i=+1 # incremento l'indice così segno di aver preso l'i-esimo paziente
+        
+    velocita_medie_pazienti = []
+    for element in file_selezionati: 
+        entita = syn.get(element['id'])
+        df_singolo = pd.read_csv(entita.path, sep=",")
+        cols_minuscolo = [c.lower() for c in df_singolo.columns] #converte tutti i nomi delle colonne con caratteri tutti minuscoli -> è più facile fare ricerca
+        nome_colonna_acc = None 
+        nome_colonna_time= None
+        for colonna in df_singolo.columns:
+            if "time" in colonna.lower():
+                nome_colonna_time=colonna
+            if "lowerback_freeacc_n" in colonna.lowe():
+                nome_colonna_acc = colonna
+        
+        #riprendi da qui
+
+        
+        # controllo se esiste la colonna time
+            if nome_colonna_acc is not None:
+
+                tempi = df_singolo[nome_colonna_time]
+                accelerazioni = df_singolo[nome_colonna_acc]
+
+                lista_tempi = []
+                lista_accelerazioni = []
+
+                # sistemo i valori uno alla volta
+                for i in range(len(df_singolo)):
+                    tempo = str(tempi.iloc[i])
+                    tempo = tempo.replace("sec", "")
+                    tempo = tempo.strip()
+
+                    try:
+                        tempo_numero = float(tempo)
+                        acc_numero = float(accelerazioni.iloc[i])
+
+                        lista_tempi.append(tempo_numero)
+                        lista_accelerazioni.append(acc_numero)
+
+                    except:
+                        # se un valore non si può convertire, lo salto
+                        pass
+
+                df_paz = pd.DataFrame()
+                df_paz["Time"] = lista_tempi
+                df_paz["Acc"] = lista_accelerazioni
+
+                df_paz = df_paz.sort_values("Time")
+                df_paz = df_paz.reset_index(drop=True)
+
+                if len(df_paz) > 0:
+
+                    delta_t = []
+                    velocita = []
+
+                    velocita_corrente = 0
+
+                    for i in range(len(df_paz)):
+
+                        if i == 0:
+                            differenza_tempo = 0
+                        else:
+                            tempo_attuale = df_paz["Time"].iloc[i]
+                            tempo_prima = df_paz["Time"].iloc[i - 1]
+                            differenza_tempo = tempo_attuale - tempo_prima
+
+                        delta_t.append(differenza_tempo)
+
+                        acc_attuale = df_paz["Acc"].iloc[i]
+
+                        velocita_corrente = velocita_corrente + acc_attuale * differenza_tempo
+                        velocita.append(velocita_corrente)
+
+                    df_paz["delta_t"] = delta_t
+                    df_paz["velocita"] = velocita
+
+                    media_velocita = df_paz["velocita"].mean()
+                    media_velocita = abs(media_velocita)
+
+                    velocita_medie_pazienti.append(media_velocita)
+
+    return velocita_medie_pazienti
+
 tab1, tab2 = st.tabs(["Balance", "Selfpace"])
 syn = synapseclient.Synapse()
 syn.login(authToken=st.session_state.auth_token)
@@ -112,10 +208,7 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                         df_paz2 = pd.read_csv(entità_2.path, sep=",")
                         st.session_state.df_selezionato = df_paz2 # Salviamo il dataframe in session_state per i grafici
                         st.session_state.paziente_corrente = balance_2
-                        
-                        #riprendi d qui#
 
-                        
                         #calcolo UPDRS per capire chi tra i 2 pazienti è più grave
                         df_pd = pd.read_csv("PD.csv", sep="," , header=1)
                         df_pd["UPDRS"] = None
@@ -135,16 +228,25 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
 
                         #consideriamo occhi aperti sempre !!
                         st.subheader("Patients Balance: CoP comparison between two PD patients")
-                        #grafico PD1
-                        df_valido_1 = df_paz1[df_paz1["GeneralEvent"] != "unlabeled"]
-                        df_1 = df_valido_1[df_valido_1["GeneralEvent"] == "EO_FeetShoWidth"]
-                        df_1 = df_1.copy()
+                        #preparo il dataframe del paziente 1
+                        eo1=[]
+                        for i,row in df_paz1.iterrows(): 
+                            if row["GeneralEvent"] != "unlabeled":
+                                if row["GeneralEvent"]=="EO_FeetShoWidth":
+                                    eo1.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                        df_EO1=pd.DataFrame(eo1)
+                        #preparo il dataframe del paziente 2
+                        eo2=[]
+                        for i,row in df_paz1.iterrows(): 
+                            if row["GeneralEvent"] != "unlabeled":
+                                if row["GeneralEvent"]=="EO_FeetShoWidth":
+                                    eo2.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                        df_EO2=pd.DataFrame(eo2)
+                        df_1 = df_EO1.copy()
                         df_1["ML"] = (df_1["RCoP_X"] + df_1["LCoP_X"]) / 2
                         df_1["AP"] = (df_1["RCoP_Y"] + df_1["LCoP_Y"]) / 2
                         #grafico PD2
-                        df_valido_2 = df_paz2[df_paz2["GeneralEvent"] != "unlabeled"]
-                        df_2 = df_valido_2[df_valido_2["GeneralEvent"] == "EO_FeetShoWidth"]
-                        df_2 = df_2.copy()
+                        df_2 = df_EO2.copy()
                         df_2["ML"] = (df_2["RCoP_X"] + df_2["LCoP_X"]) / 2
                         df_2["AP"] = (df_2["RCoP_Y"] + df_2["LCoP_Y"]) / 2
                         df_1["Legend:"] = codice_paz1
@@ -164,52 +266,7 @@ with tab2:
     PD_mov = 'syn61370558'
     CON_mov = 'syn61370552'
     
-    def calcola_velocita_medie_gruppo(folder_id, max_pazienti=50):
-        all_files = list(syn.getChildren(folder_id))
-        paz_dict = {}
-        for f in all_files:
-            nome = f['name']
-            p_id = nome[:6]
-            if p_id not in paz_dict:
-                paz_dict[p_id] = []
-            paz_dict[p_id].append(f)
-        
-        velocita_medie_pazienti = []
-        pazienti_selezionati = list(paz_dict.items())[:max_pazienti]
-        
-        for p_id, files in pazienti_selezionati:
-            files = sorted(files, key=lambda x: x['name'])
-            if len(files) >= 4:
-                selfpace_file = files[3]
-                entita = syn.get(selfpace_file['id'])
-                df_singolo = pd.read_csv(entita.path, sep=",")
-                
-                cols_totali = [c.lower() for c in df_singolo.columns]
-                
-                if "time" in cols_totali:
-                    time_col_exact = df_singolo.columns[cols_totali.index("time")]
-                    
-                    acc_col_exact = None
-                    for c in df_singolo.columns:
-                        if "lowerback_freeacc_n" in c.lower():
-                            acc_col_exact = c
-                            break
-                    
-                    if acc_col_exact:
-                        # ATTENZIONE: rimuvere dal testo "sec" poi fare conversione numerica
-                        t_pulito = df_singolo[time_col_exact].astype(str).str.replace("sec", "", case=False).str.strip()
-                        t_numeric = pd.to_numeric(t_pulito, errors='coerce')
-                        a_numeric = pd.to_numeric(df_singolo[acc_col_exact], errors='coerce')
-                        
-                        df_paz = pd.DataFrame({"Time": t_numeric, "Acc": a_numeric}).dropna().sort_values("Time").reset_index(drop=True)
-                        
-                        if not df_paz.empty:
-                            df_paz["delta_t"] = df_paz["Time"].diff().fillna(0)
-                            df_paz["velocita"] = (df_paz["Acc"] * df_paz["delta_t"]).cumsum()
-                            
-                            # Calcolo del modulo della velocità media
-                            velocita_medie_pazienti.append(abs(df_paz["velocita"].mean()))                
-        return velocita_medie_pazienti
+    
    
     with st.spinner("Processing..."):
         vel_PD = calcola_velocita_medie_gruppo(PD_mov, max_pazienti=50)

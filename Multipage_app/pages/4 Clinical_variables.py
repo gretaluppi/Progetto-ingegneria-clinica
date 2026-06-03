@@ -122,34 +122,40 @@ with tab1:
 
         st.plotly_chart(fig_box_swarm, use_container_width=True)
 
-
 with tab2: 
-    codice_paziente=st.text_input("Enter patient ID:", placeholder="es: NLS456")
-    for i,row in df_pd.iterrows():
-        if row["Subject ID"]==codice_paziente: 
+    codice_paziente = st.text_input("🔍 Enter patient ID:", placeholder="es: NLS456")
+    
+    for i, row in df_pd.iterrows():
+        if row["Subject ID"] == codice_paziente: 
             if row["Current Medications"] != "-":
                 terapia = row["Current Medications"]
                 righe_terapia = terapia.split("\n")
-                st.write("The patient "+codice_paziente+" is on the following therapy: \n")
-                for r in righe_terapia:
-                    st.write("  • "+r+"\n")
+                
+                st.subheader(f"💊 The patient **{codice_paziente}** is on the following therapy:")
+                with st.container(border=True):
+                    for r in righe_terapia:
+                        st.write("• " + r)
+                
+                st.divider()
+                
                 if row["PD Medication Dose"] != "-":
-                    dosaggio=row["PD Medication Dose"]
-                    righe_dosaggio=dosaggio.split("\n")
-                    st.write("Medication dose: \n")
-                    for r in righe_dosaggio:
-                        st.write("  • "+r+"\n")
+                    dosaggio = row["PD Medication Dose"]
+                    righe_dosaggio = dosaggio.split("\n")
+                    
+                    st.subheader("🧪 Medication dose:")
+                    with st.container(border=True):
+                        for r in righe_dosaggio:
+                            st.write("• " + r)
                 else:
-                    st.error("No dose found")
+                    st.error("⚠️ No dose found")
             else:
                 if row["PD Medication Dose"] != "-":
-                    dosaggio=row["PD Medication Dose"]
-                    righe_dosaggio=dosaggio.split("\n")
-                    st.write("Medication dose: \n")
-                    for r in righe_dosaggio:
-                        st.write("  • "+r+"\n")
-                else: 
-                    st.error("No therapy found")
-            
-        
-
+                    dosaggio = row["PD Medication Dose"]
+                    righe_dosaggio = dosaggio.split("\n")
+                    
+                    st.subheader("🧪 Medication dose:")
+                    with st.container(border=True):
+                        for r in righe_dosaggio:
+                            st.write("• " + r)
+                else:
+                    st.error("⚠️ No therapy found")
