@@ -16,10 +16,10 @@ st.title("Movements metrics")
 st.divider()
 def calcolo_UPDRS(lis1,lis2,lis3,lis4):
     somma_finale=0
-    Lista1_num = pd.to_numeric(pd.Series(Lista1), errors="coerce")
-    Lista2_num = pd.to_numeric(pd.Series(Lista2), errors="coerce")
-    Lista3_num = pd.to_numeric(pd.Series(Lista3), errors="coerce")
-    Lista4_num = pd.to_numeric(pd.Series(Lista4), errors="coerce")
+    Lista1_num = pd.to_numeric(pd.Series(lis1), errors="coerce")
+    Lista2_num = pd.to_numeric(pd.Series(lis2), errors="coerce")
+    Lista3_num = pd.to_numeric(pd.Series(lis3), errors="coerce")
+    Lista4_num = pd.to_numeric(pd.Series(lis4), errors="coerce")
     if not (Lista1_num.isna().any() or Lista2_num.isna().any() or Lista3_num.isna().any() or Lista4_num.isna().any()):
         Parte1 = sum(Lista1_num)
         Parte2 = sum(Lista2_num)
@@ -31,98 +31,82 @@ def calcolo_UPDRS(lis1,lis2,lis3,lis4):
     return somma_finale
 
 def calcola_velocita_medie_gruppo(folder_id, max_pazienti=50):
-    all_files = list(syn.getChildren(folder_id))
+    all_files = list(syn.getChildren(folder_id)) #creo una lista di dizionari che contengono ciascuno le informazioni per l'accesso ad un file
     file_selezionati=[]
     paz = []
     i=0 # lo uso per tenere traccia di quanti pazienti ho raccolto
     for f in all_files:
         if ("SelfPace" in f['name']) and ("_mat" not in f['name']) and (i<50):
             p_id = f['name'][:6]
-            if p_id not in paz:
-                paz.add(p_id) #lo uso per controllare di non aver già preso il paziente
-                f['id']=p_id #aggiungo al dizionario con le info del file anche l'id del paziente
+            if p_id not in paz: #lo uso per controllare di non aver già preso il paziente
+                paz.append(p_id) 
+                f['paziente id']=p_id #aggiungo al dizionario con le info del file anche l'id del paziente
                 file_selezionati.append(f) #aggiungo alla lista contenente solo i file selezionati il nuvo dizionario contenente le info del file
-                i=+1 # incremento l'indice così segno di aver preso l'i-esimo paziente
+                i+=1 # incremento l'indice così segno di aver preso l'i-esimo paziente
         
     velocita_medie_pazienti = []
     for element in file_selezionati: 
         entita = syn.get(element['id'])
         df_singolo = pd.read_csv(entita.path, sep=",")
-        cols_minuscolo = [c.lower() for c in df_singolo.columns] #converte tutti i nomi delle colonne con caratteri tutti minuscoli -> è più facile fare ricerca
+        df_singolo = df_singolo[df_singolo["GeneralEvent"] == "Walk"]
         nome_colonna_acc = None 
         nome_colonna_time= None
         for colonna in df_singolo.columns:
             if "time" in colonna.lower():
                 nome_colonna_time=colonna
-            if "lowerback_freeacc_n" in colonna.lowe():
+            if "lowerback_freeacc_n" in colonna.lower(): #uso questa colonna perchè è quella che prende l'accelerazione lungo l'asse normale ossia l'asse che esce dall'asse verticale del busto 
                 nome_colonna_acc = colonna
         
-        #riprendi da qui
-
-        
         # controllo se esiste la colonna time
-            if nome_colonna_acc is not None:
+        if nome_colonna_acc is not None:
+            tempi = df_singolo[nome_colonna_time]
+            accelerazioni = df_singolo[nome_colonna_acc]
+            lista_tempi = []
+            lista_accelerazioni = []
 
-                tempi = df_singolo[nome_colonna_time]
-                accelerazioni = df_singolo[nome_colonna_acc]
+            # sistemo i valori uno alla volta
+            for i in range(len(df_singolo)): #len(df) restituisce il numero di righe del dataframe
+                tempo = str(tempi.iloc[i])
+                tempo = tempo.replace("sec", "")
+                tempo = tempo.strip() #la funzione .stript rimuove gli spazi dalla stringa
 
-                lista_tempi = []
-                lista_accelerazioni = []
+                try: #try/except è un modo per gestire gli errori senza far crashare il programma
+                    tempo_numero = float(tempo)
+                    acc_numero = float(accelerazioni.iloc[i])
+                    lista_tempi.append(tempo_numero) # creo una lista con i tempi 
+                    lista_accelerazioni.append(acc_numero) # e una lista con i rispettivi valori di accelerazione
+                except:
+                    pass # se un valore non si può convertire, lo salto
+                    
+            df_paz = pd.DataFrame() #creo un nuovo dataframe
+            df_paz["Time"] = lista_tempi #aggiungo la colonna dei tempi
+            df_paz["Acc"] = lista_accelerazioni #aggiungo la rispettiva colonna delle accelerazioni
 
-                # sistemo i valori uno alla volta
-                for i in range(len(df_singolo)):
-                    tempo = str(tempi.iloc[i])
-                    tempo = tempo.replace("sec", "")
-                    tempo = tempo.strip()
+            df_paz = df_paz.sort_values("Time") # .sort_values mette in ordine crescente i numeri di Time
+            df_paz = df_paz.reset_index(drop=True) # .reset_index ricostituisce gli indici
 
-                    try:
-                        tempo_numero = float(tempo)
-                        acc_numero = float(accelerazioni.iloc[i])
+            if len(df_paz) > 0: # controllo che il dataframe non sia vuoto
+                delta_t = []
+                velocita = []
+                velocita_corrente = 0
+                for i in range(len(df_paz)):
+                    if i == 0:
+                        differenza_tempo = 0
+                    else:
+                        tempo_attuale = df_paz["Time"].iloc[i]
+                        tempo_prima = df_paz["Time"].iloc[i - 1]
+                        differenza_tempo = tempo_attuale - tempo_prima
 
-                        lista_tempi.append(tempo_numero)
-                        lista_accelerazioni.append(acc_numero)
+                    delta_t.append(differenza_tempo)
+                    acc_attuale = df_paz["Acc"].iloc[i]
+                    velocita_corrente = velocita_corrente + (acc_attuale * differenza_tempo)
+                    velocita.append(velocita_corrente)
 
-                    except:
-                        # se un valore non si può convertire, lo salto
-                        pass
-
-                df_paz = pd.DataFrame()
-                df_paz["Time"] = lista_tempi
-                df_paz["Acc"] = lista_accelerazioni
-
-                df_paz = df_paz.sort_values("Time")
-                df_paz = df_paz.reset_index(drop=True)
-
-                if len(df_paz) > 0:
-
-                    delta_t = []
-                    velocita = []
-
-                    velocita_corrente = 0
-
-                    for i in range(len(df_paz)):
-
-                        if i == 0:
-                            differenza_tempo = 0
-                        else:
-                            tempo_attuale = df_paz["Time"].iloc[i]
-                            tempo_prima = df_paz["Time"].iloc[i - 1]
-                            differenza_tempo = tempo_attuale - tempo_prima
-
-                        delta_t.append(differenza_tempo)
-
-                        acc_attuale = df_paz["Acc"].iloc[i]
-
-                        velocita_corrente = velocita_corrente + acc_attuale * differenza_tempo
-                        velocita.append(velocita_corrente)
-
-                    df_paz["delta_t"] = delta_t
-                    df_paz["velocita"] = velocita
-
-                    media_velocita = df_paz["velocita"].mean()
-                    media_velocita = abs(media_velocita)
-
-                    velocita_medie_pazienti.append(media_velocita)
+                df_paz["delta_t"] = delta_t
+                df_paz["velocita"] = velocita
+                media_velocita = df_paz["velocita"].mean() #.mean fa la media di tutti i valori
+                media_velocita = abs(media_velocita)
+                velocita_medie_pazienti.append(media_velocita)
 
     return velocita_medie_pazienti
 
@@ -137,8 +121,7 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
         if codice_paziente:
             with st.spinner("Processing..."):
                 files = list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella direttamente da synaps
-                paziente = [child['name'] for child in files]
-                file_scelti = [f for f in paziente if codice_paziente in f] # Filtra i file che contengono l'ID inserito
+                file_scelti = [f for f in files if codice_paziente in f['name']] # Filtra i file che contengono l'ID inserito
    
                 if file_scelti:
                     for element in file_scelti: 
@@ -158,12 +141,13 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                         for i,row in df_paziente.iterrows(): 
                             if row["GeneralEvent"] != "unlabeled":
                                 if row["GeneralEvent"]=="EC_FeetShoWidth": 
-                                    ec.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                                    tempo = float(str(row["Time"]).replace("sec", "").strip())
+                                    ec.append({"Time": tempo,"LCoP_X": row["LCoP_X"],"LCoP_Y": row["LCoP_Y"],"RCoP_X": row["RCoP_X"],"RCoP_Y": row["RCoP_Y"]})
                                 if row["GeneralEvent"]=="EO_FeetShoWidth":
-                                    eo.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                                    tempo = float(str(row["Time"]).replace("sec", "").strip())
+                                    eo.append({"Time":tempo,"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_Y"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
                         df_EO=pd.DataFrame(eo)
                         df_EC=pd.DataFrame(ec)
-                        #occhi aperti
                         df_EO = df_EO.copy()  #usiamo .copy() per evitare il Warning di Pandas quando creiamo nuove colonne
                         df_EO["ML"] = (df_EO["RCoP_X"] + df_EO["LCoP_X"]) / 2
                         df_EO["AP"] = (df_EO["RCoP_Y"] + df_EO["LCoP_Y"]) / 2
@@ -173,9 +157,25 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                         df_EC["AP"] = (df_EC["RCoP_Y"] + df_EC["LCoP_Y"]) / 2
                         df_EO["Legend:"] = "Eyes Open" #etichetta per legenda
                         df_EC["Legend:"] = "Eyes Close"
-                        df_COP = pd.concat([df_EC, df_EO], ignore_index = True)
-                        fig = px.line(df_COP, x = "ML", y = "AP", color = "Legend:", labels={"ML": "CoP in ML direction", "AP": "CoP in AP direction"})
-                        st.plotly_chart(fig)
+                        df_COP = pd.concat([df_EC, df_EO], ignore_index=True)
+                        df_COP["Time"] = pd.to_numeric(df_COP["Time"], errors="coerce") #.to_numeric converte le stringhe in numeri e se nella stringa non è contenuto un numero restituisce NaN
+                        df_COP["ML"] = pd.to_numeric(df_COP["ML"], errors="coerce")
+                        df_COP["AP"] = pd.to_numeric(df_COP["AP"], errors="coerce")
+
+                        df_COP = df_COP.dropna(subset=["Time", "ML", "AP"]) 
+                        df_COP = df_COP.sort_values(["Legend:", "Time"])
+                    
+                        fig = px.line(
+                            df_COP,
+                            x="ML",
+                            y="AP",
+                            color="Legend:",
+                            labels={"ML": "CoP in ML direction", "AP": "CoP in AP direction"}
+                        )
+                        st.plotly_chart(fig,use_container_width=True)
+                        # fig = px.line(df_COP, x="ML", y="AP", color="Legend:",
+                        #         labels={"ML": "CoP in ML direction", "AP": "CoP in AP direction"})                        
+                        # st.plotly_chart(fig)
                 else:
                     st.error("ID not found for the selected patient.")
     else: 
@@ -184,9 +184,8 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
         if codice_paz1 and codice_paz2:
             with st.spinner("Processing..."):
                 files= list(syn.getChildren(PD_mov)) # Prende la lista dei file dentro la cartella
-                paz= [child['name'] for child in files] #prende i nomi di tutti i pazienti
-                file_scelti_1 = [f for f in paz if codice_paz1 in f] # Filtra i file che contengono l'ID inserit
-                file_scelti_2 = [f for f in paz if codice_paz2 in f] 
+                file_scelti_1 = [f for f in files if codice_paz1 in f['name']] # Filtra i file che contengono l'ID inserit
+                file_scelti_2 = [f for f in files if codice_paz2 in f['name']] 
 
                 if file_scelti_1 and file_scelti_2:
                     for element in file_scelti_1: 
@@ -233,14 +232,14 @@ with tab1:  #1. grafico del CoP del paziente i in balance con occhi aperti vs ch
                         for i,row in df_paz1.iterrows(): 
                             if row["GeneralEvent"] != "unlabeled":
                                 if row["GeneralEvent"]=="EO_FeetShoWidth":
-                                    eo1.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                                    eo1.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_Y"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
                         df_EO1=pd.DataFrame(eo1)
                         #preparo il dataframe del paziente 2
                         eo2=[]
-                        for i,row in df_paz1.iterrows(): 
+                        for i,row in df_paz2.iterrows(): 
                             if row["GeneralEvent"] != "unlabeled":
                                 if row["GeneralEvent"]=="EO_FeetShoWidth":
-                                    eo2.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_X"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
+                                    eo2.append({"LCoP_X":row["LCoP_X"], "LCoP_Y":row["LCoP_Y"],"RCoP_X":row["RCoP_X"],"RCoP_Y":row["RCoP_Y"]})
                         df_EO2=pd.DataFrame(eo2)
                         df_1 = df_EO1.copy()
                         df_1["ML"] = (df_1["RCoP_X"] + df_1["LCoP_X"]) / 2
@@ -266,8 +265,6 @@ with tab2:
     PD_mov = 'syn61370558'
     CON_mov = 'syn61370552'
     
-    
-   
     with st.spinner("Processing..."):
         vel_PD = calcola_velocita_medie_gruppo(PD_mov, max_pazienti=50)
         vel_CON = calcola_velocita_medie_gruppo(CON_mov, max_pazienti=50)
@@ -276,7 +273,6 @@ with tab2:
     if not vel_PD and not vel_CON:
         st.error("Error")
         st.stop()
-
 
     fig_box_swarm = go.Figure()
     if vel_PD:    #PD BOX
@@ -331,3 +327,36 @@ with tab2:
         hovermode=False
     )
     st.plotly_chart(fig_box_swarm, use_container_width=True)
+    col_info, _ = st.columns([1, 20])
+
+    # with col_info:
+    #     st.button(
+    #         "?",
+    #         help=(
+    #             "The estimated speed values may differ from expected walking speed because "
+    #             "they are calculated by integrating trunk acceleration. This method can be "
+    #             "affected by sensor noise, signal drift, sensor orientation, gravity compensation "
+    #             "errors, turning phases, short recording windows, and missing or irregular samples. "
+    #             "Therefore, these values should be interpreted as an exploratory movement proxy "
+    #             "rather than a precise walking speed measurement."
+    #         )
+    #     )
+    
+
+    st.caption(
+        " ",
+        help=(
+            "The estimated speed values may differ from expected walking speed because "
+            "they are calculated by integrating trunk acceleration. This method can be "
+            "affected by sensor noise, signal drift, sensor orientation, gravity compensation "
+            "errors, turning phases, short recording windows, and missing or irregular samples. "
+            "Therefore, these values should be interpreted as an exploratory movement proxy "
+            "rather than a precise walking speed measurement."
+        )
+    )
+    # with st.expander("See explanation"):
+    # st.write('''
+    #     The chart above shows some numbers I picked for you.
+    #     I rolled actual dice for these, so they're *guaranteed* to
+    #     be random.
+    # ''')
