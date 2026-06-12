@@ -164,13 +164,8 @@ if st.session_state.show_filters:
         for child in file:
             for element in soggetti_selezionati_UPDRS: 
                 if element["Subject ID"] in child['name']: 
-                    st.sidebar.header("seleziona tipo di prova")
-                    selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
-                    if selezione_prova=="SelfPace": 
-                        
+                    files_disponibili.append(child)
 
-        
-        
         st.sidebar.header("seleziona tipo di prova")
         selezione_prova=st.sidebar.selectbox("prova eseguita", ["SelfPace","HurriedPace","SelfPace_mat","HurriedPace_mat","SelfPace_matTURN","TandemGait","TUG","Balance","SElfPace_doorpat","FreeWalk"])
         nomi_disponibili = [f['name'] for f in files_disponibili]
