@@ -21,7 +21,7 @@ st.divider()
 def find_file(candidates):
     for name in candidates:
         if os.path.exists(name): return name
-    all_csv = glob.glob("*.csv")
+    all_csv = glob.glob("**/*.csv", recursive=True)
     for name in candidates:
         key = name.lower().replace(".csv", "")
         for file in all_csv:
