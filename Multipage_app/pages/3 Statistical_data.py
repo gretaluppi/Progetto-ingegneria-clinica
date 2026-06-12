@@ -172,7 +172,7 @@ st.caption("Descriptive statistics, t-test and p-value for clinical and motor va
 
 # Creazione del menu Popover per i filtri dei sottogruppi nella pagina principale
 with st.popover("🎛️ Open Subgroup Selection Filters", use_container_width=True):
-    st.markdown("### Subgroup Analysis Configuration")
+    st.markdown("### Subgroup Analysis Configuration") 
     scelta_parametri = st.multiselect(
         "Parameters to apply:", ["Gender", "Age"],
         help="Select the demographic features you want to use to narrow down the current patient cohort."

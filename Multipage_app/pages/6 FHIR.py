@@ -185,7 +185,7 @@ for i, row in df_control.iterrows():
         riga_paziente   = row
         break
 if paziente_scelto:
-    st.success(f"Paziente trovato: {paziente_scelto} ({stato_paziente})")
+    st.success(f"✅Paziente trovato: {paziente_scelto} ({stato_paziente})")
     st.dataframe(pd.DataFrame([riga_paziente]))
     observations = []
     col1, col2 = st.columns(2)
@@ -231,7 +231,7 @@ else:
         col1, col2, col3 = st.columns(3)
         with col1:
             with st.container(border=True):
-                st.text("Dati demografici")
+                st.text("Dati demografici 👤")
                 age    = st.checkbox("Età (Age)")
                 gender = st.checkbox("Sesso (Gender)")
                 weight = st.checkbox("Peso (Weight)")
@@ -239,14 +239,14 @@ else:
 
         with col2:
             with st.container(border=True):
-                st.text("Dati clinici Parkinson")
+                st.text("Dati clinici Parkinson 📋")
                 hoehn_yahr      = st.checkbox("Hoehn & Yahr Score")
                 years_diagnosis = st.checkbox("Anni dalla diagnosi (Years since PD diagnosis)")
                 dbs             = st.checkbox("DBS impiantato (DBS?)")
 
         with col3:
             with st.container(border=True):
-                st.text("Cammino e Equilibrio")
+                st.text("Cammino e Equilibrio 🚶‍♂️‍➡️")
                 numero_passi= st.checkbox("Numero passi")
                 cadenza = st.checkbox("cadenza")
                 durata_TUG = st.checkbox("Durata TUG")
@@ -311,7 +311,7 @@ else:
 
         # Mostra il bottone di download
         st.download_button(
-            label     = f"⬇️ Scarica file {formato}",
+            label     = f"⬇️carica file {formato}",
             data      = contenuto_file,           # il contenuto del file
             file_name = nome_file,                # il nome del file scaricato
             mime      = tipo_mime                 # il tipo di file (detto al browser)
